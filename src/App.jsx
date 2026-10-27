@@ -47,16 +47,16 @@ const LINK_GROUPS = [
       { label: "Hades 2 Runs", to: "/Run" },
       { label: "Fear Ladder", to: "/FearLadder" },
       { label: "Fear Record", to: "/FearRecord" },
-      { label: "Speed Ladder", to: "/SpeedLadder" },
-      { label: "Speed Record", to: "/SpeedRecord" },
+      // { label: "Speed Ladder", to: "/SpeedLadder" },
+      // { label: "Speed Record", to: "/SpeedRecord" },
     ],
   },
   {
     title: "Stats",
     links: [
       { label: "Total Stats", to: "/Stats" },
-      { label: "First Max Fear", to: "/FirstMaxFear" },
-      { label: "Player Stats", to: "/Player" },
+      // { label: "First Max Fear", to: "/FirstMaxFear" },
+      // { label: "Player Stats", to: "/Player" },
     ],
   },
   {
@@ -70,12 +70,12 @@ const LINK_GROUPS = [
     title: "Submit",
     links: [
       { label: "Run Submission", to: "/Submit" },
-      {
-        label: "Submission Rules",
-        to: "https://docs.google.com/document/d/1hhMu0jR8lSzZ2mtyteqW7NDy9wpIbra3d2RJkmYFhAI/edit?tab=t.0",
-        external: true,
-      },
-      { label: "Speedrun Submission", to: "https://www.speedrun.com/hades2", external: true },
+      // {
+      //   label: "Submission Rules",
+      //   to: "https://docs.google.com/document/d/1hhMu0jR8lSzZ2mtyteqW7NDy9wpIbra3d2RJkmYFhAI/edit?tab=t.0",
+      //   external: true,
+      // },
+      // { label: "Speedrun Submission", to: "https://www.speedrun.com/hades2", external: true },
     ],
   },
 ];
@@ -429,7 +429,6 @@ function App() {
   return (
     <div className="relative h-screen overflow-hidden text-center font-[Dos] text-[15px]" ref={containerRef}>
       <div className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-lvh bg-cover bg-center bg-[url('/mainBg.jpg')] brightness-25 hue-rotate-20" />
-
       {/* Rain icon pool (positioned and animated by GSAP) */}
       {Array.from({ length: RAIN_COUNT }, (_, i) => (
         <img
