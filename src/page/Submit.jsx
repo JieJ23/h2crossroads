@@ -173,7 +173,7 @@ export default function Submit() {
               <option value={"Raven"}>Raven</option>
               <option value={""}>None</option>
             </select>
-            <div>* Select All Biomes for Dream Dive</div>
+            <div className="text-orange-300">* Select All Biomes for Dream Dive</div>
             <input
               className="input w-full rounded bg-[#0e0c12] max-w-125 focus:outline-0"
               required
@@ -211,7 +211,7 @@ export default function Submit() {
             </div>
             <input
               type="number"
-              value={fear}
+              placeholder="Fear"
               className="input w-full rounded bg-[#0e0c12] max-w-125 focus:outline-0"
               onChange={(e) => setFear(e.target.value)}
               max={67}
@@ -257,7 +257,7 @@ export default function Submit() {
                 required
               />
             </div>
-            <div>* Unseeded, otherwise, leave blank</div>
+            <div className="text-orange-300">* Unseeded, otherwise, leave blank</div>
             <select
               value={gameType}
               className="select w-full rounded bg-[#0e0c12] max-w-125 focus:outline-0"
@@ -268,6 +268,8 @@ export default function Submit() {
                 Unseeded
               </option>
             </select>
+            <div className="text-orange-300">* De-select to select boons</div>
+
             <input
               className="select w-full rounded bg-[#0e0c12] max-w-125 focus:outline-0"
               placeholder="Core Boons"

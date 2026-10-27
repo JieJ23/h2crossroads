@@ -97,7 +97,7 @@ const spreadEase = (p) => {
   return p < 0.5 ? (1 - o) / 2 : (1 + o) / 2;
 };
 const LOOP_AT_ENDS = true; // true: scrolling past the last card wraps to the first (and back). false: it just stops at the ends
-const SCROLL_PER_CARD = 600; // px of scrolling needed to move from one card to the next: higher = slower, less sensitive
+const SCROLL_PER_CARD = 350; // px of scrolling needed to move from one card to the next: higher = slower, less sensitive
 
 const cardClass =
   "relative flex h-full w-full flex-col items-center justify-end gap-1 rounded-lg border border-white/10 px-3 pb-5 text-gray-200 transition-colors hover:border-white/50";
