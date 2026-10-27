@@ -126,6 +126,7 @@ export default function Submit() {
       setLoading(false);
     }
   }
+
   return (
     <PageBlock>
       <div className="my-4 select-none overflow-hidden">
@@ -149,12 +150,12 @@ export default function Submit() {
               required
             />
             <select
-              value={allAspectsInOrder[aspect]}
+              defaultValue="Melinoe Staff"
               className="select w-full rounded bg-[#0e0c12] max-w-125 focus:outline-0"
               onChange={(e) => setAspect(+e.target.value)}
             >
               {allAspectsInOrder.map((ite, index) => (
-                <option key={index} value={index}>
+                <option key={index} value={index} onClick={() => setAspect(index)}>
                   {ite}
                 </option>
               ))}

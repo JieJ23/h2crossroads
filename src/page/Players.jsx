@@ -41,8 +41,9 @@ export default function Player() {
     return result;
   }, [allRuns]);
 
-  const allAvailablePlayers = useMemo(() => Object.keys(bestRuns), [bestRuns]);
-
+  const allAvailablePlayers = useMemo(() => Object.keys(bestRuns), [bestRuns]).sort((a, b) =>
+    a.toLowerCase().localeCompare(b.toLowerCase()),
+  );
   // Safely get current player data or fallback to empty structure
   const currentPlayerRuns = bestRuns[player] || makeEmptyPlayer();
 
