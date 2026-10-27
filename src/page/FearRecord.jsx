@@ -1,7 +1,8 @@
 import { useData } from "../hooks/DataFetch";
 import { usePfp } from "../hooks/PfpFetch";
 import Loading from "../block/loading";
-import mergedOrderData from "../assets/json/bundle";
+import earlyAccessData from "../assets/json/P.json";
+import highFearData from "../assets/json/V.json";
 import PageBlock from "../block/pageBlock";
 import { memo, useMemo, useState, useRef } from "react";
 import MarqueeModule from "react-fast-marquee";
@@ -181,7 +182,7 @@ export default function FearRecord() {
 
   // Single pass over all entries; only recomputed when `posts` changes,
   // not when `category` changes.
-  const displayCategory = useMemo(() => buildDisplayCategory([...mergedOrderData, ...posts]), [posts]);
+  const displayCategory = useMemo(() => buildDisplayCategory([...earlyAccessData, ...highFearData, ...posts]), [posts]);
 
   const displayCurrentCategory = displayCategory[category];
   const region = CATEGORY_REGION[category];
@@ -194,7 +195,7 @@ export default function FearRecord() {
 
   // Players
 
-  const maxFearRuns = [mergedOrderData, ...posts].filter(
+  const maxFearRuns = [...earlyAccessData, ...highFearData, , ...posts].filter(
     (objs) => objs.type && objs.type === "Unseeded" && objs.fea == 67,
   );
 

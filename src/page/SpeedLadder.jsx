@@ -1,10 +1,7 @@
 import PageBlock from "../block/pageBlock";
-import highFearData from "../assets/json/V.json";
 import { useState, useMemo } from "react";
-import { useData } from "../hooks/DataFetch";
 import { Link } from "react-router-dom";
-import Loading from "../block/loading";
-import mergedOrderData from "../assets/json/bundle";
+import { fixedSrc } from "../assets/json/bundle.jsx";
 import { allAspectsInOrder, parseTimetoMs, parsemstoTime } from "../util/misc";
 
 const MS_PER_MIN = 60000;
@@ -12,11 +9,10 @@ const TIME_OPTIONS = [4, 5, 6, 7, 8, 9, 10]; // max time, in minutes
 const LOCATIONS = ["Underworld", "Surface"];
 
 export default function SpeedLadder() {
-  const { posts, loader } = useData();
   const [location, setLocation] = useState(`Underworld`);
   const [maxTime, setMaxTime] = useState(10);
 
-  const allRuns = useMemo(() => [...mergedOrderData, ...(posts || [])], [posts]);
+  const allRuns = useMemo(() => [...fixedSrc], []);
 
   const fullData = useMemo(() => {
     const TOP_N = 10;

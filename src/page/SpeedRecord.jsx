@@ -1,7 +1,7 @@
-import { useData } from "../hooks/DataFetch";
 import { usePfp } from "../hooks/PfpFetch";
 import Loading from "../block/loading";
-import mergedOrderData from "../assets/json/bundle";
+import { fixedSrc } from "../assets/json/bundle";
+
 import PageBlock from "../block/pageBlock";
 import { memo, useMemo, useState } from "react";
 import { parseTimetoMs } from "../util/misc";
@@ -140,7 +140,6 @@ const AvatarItem = memo(function AvatarItem({ name, ind, region, profileImg }) {
   );
 });
 export default function SpeedRecord() {
-  const { posts, loader } = useData();
   const { pfp, pfploader } = usePfp();
   const [category, setCategory] = useState(0);
 
@@ -148,10 +147,8 @@ export default function SpeedRecord() {
   // not when `category` changes.
   const displayCategory = useMemo(
     () =>
-      buildDisplayCategory(
-        [...mergedOrderData, ...posts].filter((obj) => (obj.patch && obj.patch == "v1.0") || obj.patch == "v1.13x"),
-      ),
-    [posts],
+      buildDisplayCategory([...fixedSrc].filter((obj) => (obj.patch && obj.patch == "v1.0") || obj.patch == "v1.13x")),
+    [],
   );
 
   const displayCurrentCategory = displayCategory[category];
@@ -168,7 +165,7 @@ export default function SpeedRecord() {
       <div>
         <PageBlock>
           {/*  */}
-          {loader || pfploader ? (
+          {pfploader ? (
             <Loading />
           ) : (
             <div>

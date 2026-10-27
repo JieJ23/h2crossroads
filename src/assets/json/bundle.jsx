@@ -14,7 +14,7 @@ const fixName = {
   ClearlyNotJao: "clearlyNotJao",
 };
 
-const fixedSrc = src.map((obj) => ({
+export const fixedSrc = src.map((obj) => ({
   ...obj,
   nam: fixName[obj.nam] ?? obj.nam,
 }));
