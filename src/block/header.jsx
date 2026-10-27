@@ -67,6 +67,9 @@ function Header() {
             <li>
               <Link to={"/FirstMaxFear"}>First Max Fear</Link>
             </li>
+            <li>
+              <Link to={"/Player"}>Player Stats</Link>
+            </li>
           </ul>
         </div>
         <button popoverTarget="a3" className="text-gray-300 text-[16px] uppercase px-2">

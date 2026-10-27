@@ -89,6 +89,11 @@ export default function FirstMaxFear() {
               <div
                 className="overflow-hidden min-w-30 min-h-40 border border-white/10 bg-black relative rounded flex flex-col items-center justify-top"
                 key={obj.nam}
+                style={{
+                  borderStyle: "solid",
+                  borderWidth: "4px",
+                  borderImage: "url('/Misc/frame.webp') 30 stretch",
+                }}
               >
                 {/* Wrapper handles positioning, image handles animation */}
                 <div

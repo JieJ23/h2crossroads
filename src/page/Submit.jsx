@@ -128,7 +128,7 @@ export default function Submit() {
   }
   return (
     <PageBlock>
-      <div className="my-4 select-none">
+      <div className="my-4 select-none overflow-hidden">
         <form onSubmit={Submit}>
           <div className="flex flex-col items-center gap-2">
             <input
@@ -225,7 +225,7 @@ export default function Submit() {
               name="src"
               required
             />
-            <div className="flex gap-2 w-125">
+            <div className="flex gap-2 w-full max-w-125">
               <input
                 type="number"
                 min="0"

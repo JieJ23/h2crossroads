@@ -3,6 +3,10 @@ import { useRef } from "react";
 import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Draggable } from "gsap/Draggable";
+
+gsap.registerPlugin(useGSAP, ScrollTrigger, Draggable);
 
 import { allAspectsInOrder } from "./util/misc";
 
@@ -52,6 +56,7 @@ const LINK_GROUPS = [
     links: [
       { label: "Total Stats", to: "/Stats" },
       { label: "First Max Fear", to: "/FirstMaxFear" },
+      { label: "Player Stats", to: "/Player" },
     ],
   },
   {
@@ -75,13 +80,84 @@ const LINK_GROUPS = [
   },
 ];
 
+const buttonClass =
+  "rounded border border-white/20 bg-black/50 px-5 py-2 text-gray-300 transition-colors hover:border-white/60 hover:bg-black/80";
+
+// One flat list of cards for the carousel (the group title becomes a small label on each card)
+const CARDS = LINK_GROUPS.flatMap((group) => group.links.map((link) => ({ ...link, group: group.title })));
+
+const CARD_SPACING = 0.1; // stagger between cards: smaller = cards bunch closer together
+const CARD_REACH = 240; // how far the outer cards travel from the center, in % of a card's width: smaller = closer
+const CARD_CURVE = 3; // 1 = evenly spaced; higher = bigger gap beside the center card and tighter outer cards
+
+// Maps the card's travel (0 to 1) to its position: it leaps away from the center quickly, then the outer cards bunch up.
+const spreadEase = (p) => {
+  const u = Math.abs(2 * p - 1); // 1 at either end, 0 at the center
+  const o = 1 - Math.pow(1 - u, CARD_CURVE);
+  return p < 0.5 ? (1 - o) / 2 : (1 + o) / 2;
+};
+const LOOP_AT_ENDS = true; // true: scrolling past the last card wraps to the first (and back). false: it just stops at the ends
+const SCROLL_PER_CARD = 600; // px of scrolling needed to move from one card to the next: higher = slower, less sensitive
+
 const cardClass =
-  "quick-card block rounded-lg border border-white/20 bg-black/60 px-4 py-3 text-gray-200 transition-colors hover:border-white/60 hover:bg-black/80";
+  "relative flex h-full w-full flex-col items-center justify-end gap-1 rounded-lg border border-white/10 px-3 pb-5 text-gray-200 transition-colors hover:border-white/50";
+
+// Each card flies in from the right, grows to full size in the middle, and shrinks away to the left.
+const animateCard = (el) => {
+  const tl = gsap.timeline();
+  tl.fromTo(
+    el,
+    { scale: 0, opacity: 0 },
+    {
+      scale: 1,
+      opacity: 1,
+      zIndex: 100,
+      duration: 0.5,
+      yoyo: true,
+      repeat: 1,
+      ease: "power1.in",
+      immediateRender: false,
+    },
+  ).fromTo(
+    el,
+    { xPercent: CARD_REACH },
+    { xPercent: -CARD_REACH, duration: 1, ease: spreadEase, immediateRender: false },
+    0,
+  );
+  return tl;
+};
+
+// GreenSock's seamless-loop helper (from the pen): builds a timeline whose playhead can wrap forever.
+function buildSeamlessLoop(items, spacing, animateFunc) {
+  const overlap = Math.ceil(1 / spacing);
+  const startTime = items.length * spacing + 0.5;
+  const loopTime = (items.length + overlap) * spacing + 1;
+  const rawSequence = gsap.timeline({ paused: true });
+  const seamlessLoop = gsap.timeline({ paused: true, repeat: -1 });
+  const l = items.length + overlap * 2;
+
+  for (let i = 0; i < l; i++) {
+    rawSequence.add(animateFunc(items[i % items.length]), i * spacing);
+  }
+
+  rawSequence.time(startTime);
+  seamlessLoop
+    .to(rawSequence, { time: loopTime, duration: loopTime - startTime, ease: "none" })
+    .fromTo(
+      rawSequence,
+      { time: overlap * spacing + 1 },
+      { time: startTime, duration: startTime - (overlap * spacing + 1), immediateRender: false, ease: "none" },
+    );
+  return seamlessLoop;
+}
 
 const NO_REDUCED_MOTION = "(prefers-reduced-motion: no-preference)";
 
 function App() {
   const containerRef = useRef(null);
+  const cardsRef = useRef(null);
+  const proxyRef = useRef(null);
+  const draggedRef = useRef(false); // true while a drag is happening, so a drag doesn't also click a link
 
   // Rain: a fixed pool of icons that loop forever. Each one is re-randomized
   // (image, glow color, position, size, tilt) every time it starts a new fall,
@@ -147,10 +223,129 @@ function App() {
   useGSAP(
     () => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-      tl.from(".hero-title", { y: 40, opacity: 0, duration: 0.8 })
-        .from(".hero-sub", { y: 20, opacity: 0, duration: 0.6 }, "-=0.4")
-        .from(".hero-cta", { scale: 0.8, opacity: 0, duration: 0.5, ease: "back.out(2)" }, "-=0.3")
-        .from(".quick-card", { y: 30, opacity: 0, stagger: 0.12, duration: 0.5 }, "-=0.2");
+      tl.from(".hero-title", { y: 40, opacity: 0, duration: 0.8 });
+    },
+    { scope: containerRef },
+  );
+
+  // Infinite scroll / drag / snap carousel (GreenSock pen RwKwLWK)
+  useGSAP(
+    () => {
+      const container = containerRef.current;
+      const cards = gsap.utils.toArray(".carousel-card");
+      if (!container || !cardsRef.current || cards.length === 0) return;
+
+      let iteration = 0; // bumps each time we wrap past the start/end of the scroll range
+      gsap.set(cards, { xPercent: CARD_REACH, opacity: 0, scale: 0 });
+
+      const count = cards.length;
+      // The scroll range runs from the first card to the LAST card (not back to the first again),
+      // so one scroll lap covers count - 1 steps. Scrolling past the last card wraps to the first.
+      const lapLength = (count - 1) * CARD_SPACING;
+      // One full turn of the carousel is exactly count * spacing. Using this instead of the loop timeline's own
+      // duration() keeps every lap aligned with the cards (the timeline reports a longer duration than one turn,
+      // which made the wrap sweep through extra cards).
+      const loopSpan = count * CARD_SPACING;
+      const seamlessLoop = buildSeamlessLoop(cards, CARD_SPACING, animateCard);
+      const playhead = { offset: 0 };
+      const wrapTime = gsap.utils.wrap(0, loopSpan);
+
+      // Reused tween that smoothly scrubs the loop's playhead
+      const scrub = gsap.to(playhead, {
+        offset: 0,
+        onUpdate() {
+          seamlessLoop.time(wrapTime(playhead.offset));
+        },
+        duration: 0.5,
+        ease: "power3",
+        paused: true,
+      });
+
+      const trigger = ScrollTrigger.create({
+        trigger: container,
+        start: 0,
+        end: `+=${(count - 1) * SCROLL_PER_CARD}`,
+        pin: container,
+        onUpdate(self) {
+          const scroll = self.scroll();
+          if (LOOP_AT_ENDS && scroll > self.end - 1) {
+            wrap(1, 3);
+          } else if (LOOP_AT_ENDS && scroll < 1 && self.direction < 0) {
+            wrap(-1, self.end - 3);
+          } else {
+            scrub.vars.offset = iteration * loopSpan + self.progress * lapLength;
+            scrub.invalidate().restart();
+          }
+        },
+      });
+
+      // Snapped positions stay 2px away from either end; only real scrolling reaches the last 1px, which triggers a wrap.
+      // (A 1px margin can round down to 0 on some screens/zoom levels and trigger a second, unwanted wrap.)
+      const progressToScroll = (progress) => gsap.utils.clamp(2, trigger.end - 2, progress * trigger.end);
+
+      function wrap(iterationDelta, scrollTo) {
+        iteration += iterationDelta;
+        // Jump instantly, even if the site has CSS smooth scrolling (which would sweep through every card)
+        const root = document.documentElement;
+        const previous = root.style.scrollBehavior;
+        root.style.scrollBehavior = "auto";
+        trigger.scroll(scrollTo);
+        trigger.update();
+        root.style.scrollBehavior = previous;
+      }
+
+      function scrollToOffset(offset) {
+        let step = Math.round(offset / CARD_SPACING); // nearest card, counted from the very first lap
+        if (!LOOP_AT_ENDS) step = gsap.utils.clamp(0, count - 1, step); // stop at the first / last card
+        const lap = Math.floor(step / count);
+        const index = step - lap * count; // 0 = first card, count - 1 = last card
+        const scroll = progressToScroll(count > 1 ? index / (count - 1) : 0);
+        if (lap !== iteration) return wrap(lap - iteration, scroll);
+        trigger.scroll(scroll);
+      }
+
+      // Snap to the nearest card when scrolling stops
+      const onScrollEnd = () => scrollToOffset(scrub.vars.offset);
+      ScrollTrigger.addEventListener("scrollEnd", onScrollEnd);
+
+      const prev = container.querySelector(".carousel-prev");
+      const next = container.querySelector(".carousel-next");
+      const onPrev = () => scrollToOffset(scrub.vars.offset - CARD_SPACING);
+      const onNext = () => scrollToOffset(scrub.vars.offset + CARD_SPACING);
+      prev.addEventListener("click", onPrev);
+      next.addEventListener("click", onNext);
+
+      // Dragging (mouse + touch)
+      Draggable.create(proxyRef.current, {
+        type: "x",
+        trigger: cardsRef.current,
+        dragClickables: true,
+        onPress() {
+          this.startOffset = scrub.vars.offset;
+        },
+        onDragStart() {
+          draggedRef.current = true;
+        },
+        onDrag() {
+          scrub.vars.offset = this.startOffset + (this.startX - this.x) * 0.001;
+          scrub.invalidate().restart();
+        },
+        onDragEnd() {
+          scrollToOffset(scrub.vars.offset);
+        },
+        onRelease() {
+          // Let the click event (if any) fire first, then allow links to work again
+          setTimeout(() => {
+            draggedRef.current = false;
+          }, 0);
+        },
+      });
+
+      return () => {
+        ScrollTrigger.removeEventListener("scrollEnd", onScrollEnd);
+        prev.removeEventListener("click", onPrev);
+        next.removeEventListener("click", onNext);
+      };
     },
     { scope: containerRef },
   );
@@ -230,11 +425,8 @@ function App() {
   );
 
   return (
-    <div
-      className="relative min-h-screen text-center flex flex-col justify-center items-center px-4 gap-4 overflow-hidden font-[Dos] text-[15px]"
-      ref={containerRef}
-    >
-      <div className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-lvh bg-cover bg-center bg-[url('/mainBg.jpg')] brightness-20 hue-rotate-20" />
+    <div className="relative h-screen overflow-hidden text-center font-[Dos] text-[15px]" ref={containerRef}>
+      <div className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-lvh bg-cover bg-center bg-[url('/mainBg.jpg')] brightness-25 hue-rotate-20" />
 
       {/* Rain icon pool (positioned and animated by GSAP) */}
       {Array.from({ length: RAIN_COUNT }, (_, i) => (
@@ -247,28 +439,73 @@ function App() {
       ))}
 
       {/* Content */}
-      <h1 className="hero-title relative z-10 text-5xl font-bold">H2Crossroads</h1>
+      <h1 className="hero-title absolute inset-x-0 top-10 z-10 text-5xl font-bold">H2Crossroads</h1>
 
-      <div className="relative z-10 mt-6 flex w-full max-w-4xl flex-col gap-6">
-        {LINK_GROUPS.map((group) => (
-          <section key={group.title} className="flex flex-col gap-3">
-            <h2 className="text-lg text-gray-300">{group.title}</h2>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {group.links.map((link) =>
-                link.external ? (
-                  <a key={link.to} href={link.to} target="_blank" rel="noopener noreferrer" className={cardClass}>
-                    {link.label}
-                  </a>
-                ) : (
-                  <Link key={link.to} to={link.to} className={cardClass}>
-                    {link.label}
-                  </Link>
-                ),
+      {/* Carousel: cards are positioned and animated by GSAP */}
+      <ul
+        ref={cardsRef}
+        className="absolute left-1/2 top-1/2 z-20 h-64 w-44 md:h-80 md:w-54 -translate-x-1/2 -translate-y-1/2 select-none bg-[#0e0c12]"
+        style={{
+          borderStyle: "solid",
+          borderWidth: "15px",
+          borderImage: "url('/Misc/frame.webp') 50 stretch",
+        }}
+      >
+        {CARDS.map((link, index) => {
+          const content = (
+            <>
+              <span className="text-sm text-gray-200 drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)]">{link.group}</span>
+              <span className="text-xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">{link.label}</span>
+            </>
+          );
+          const onClick = (e) => {
+            if (draggedRef.current) e.preventDefault(); // a drag shouldn't open the link
+          };
+          return (
+            <li key={link.to} className={`carousel-card absolute inset-0`}>
+              <div
+                className="absolute inset-0 overflow-hidden rounded-lg bg-center bg-cover drop-shadow-[0_0_8px_black]"
+                style={{ backgroundImage: `url("/Arcana/c${index + 1}.png")` }}
+              >
+                <div className="absolute inset-0 bg-linear-to-t from-black via-black/50 via-40% to-transparent" />
+              </div>
+              {link.external ? (
+                <a
+                  href={link.to}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  draggable={false}
+                  onClick={onClick}
+                  className={cardClass}
+                >
+                  {content}
+                </a>
+              ) : (
+                <Link to={link.to} draggable={false} onClick={onClick} className={cardClass}>
+                  {content}
+                </Link>
               )}
-            </div>
-          </section>
-        ))}
+            </li>
+          );
+        })}
+      </ul>
+
+      <div className="absolute inset-x-0 bottom-8 z-10 flex flex-col items-center gap-3">
+        <p className="text-sm text-gray-300 drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)]">
+          Scroll, drag, or use the buttons
+        </p>
+        <div className="flex gap-4">
+          <button type="button" className={`carousel-prev ${buttonClass}`}>
+            Prev
+          </button>
+          <button type="button" className={`carousel-next ${buttonClass}`}>
+            Next
+          </button>
+        </div>
       </div>
+
+      {/* Invisible element Draggable moves around to track the drag distance */}
+      <div ref={proxyRef} className="invisible absolute" />
 
       {/* Chase track around the edge of the page */}
       <div className="pointer-events-none absolute inset-2 z-10">

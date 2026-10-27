@@ -14,6 +14,7 @@ import BiomeMap from "./page/BiomeMap.jsx";
 
 import Stats from "./page/Stats.jsx";
 import FirstMaxFear from "./page/FirstMaxFear.jsx";
+import Player from "./page/Players.jsx";
 
 import Submit from "./page/Submit.jsx";
 // Hooks
@@ -38,6 +39,7 @@ createRoot(document.getElementById("root")).render(
 
             <Route path="/Stats" element={<Stats />} />
             <Route path="/FirstMaxFear" element={<FirstMaxFear />} />
+            <Route path="/Player" element={<Player />} />
 
             <Route path="/ArcanaVow" element={<ArcanaVow />} />
             <Route path="/BiomeMap" element={<BiomeMap />} />
