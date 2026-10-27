@@ -86,6 +86,7 @@ const buttonClass =
 // One flat list of cards for the carousel (the group title becomes a small label on each card)
 const CARDS = LINK_GROUPS.flatMap((group) => group.links.map((link) => ({ ...link, group: group.title })));
 
+const VISIBLE_CARDS = 5; // how many cards are on screen at once; the rest stay hidden (scale 0, opacity 0) until scrolled onto
 const CARD_SPACING = 0.1; // stagger between cards: smaller = cards bunch closer together
 const CARD_REACH = 240; // how far the outer cards travel from the center, in % of a card's width: smaller = closer
 const CARD_CURVE = 3; // 1 = evenly spaced; higher = bigger gap beside the center card and tighter outer cards
@@ -103,6 +104,22 @@ const cardClass =
   "relative flex h-full w-full flex-col items-center justify-end gap-1 rounded-lg border border-white/10 px-3 pb-5 text-gray-200 transition-colors hover:border-white/50";
 
 // Each card flies in from the right, grows to full size in the middle, and shrinks away to the left.
+// Only the middle of that trip is visible: the card VISIBLE_CARDS / 2 + 1 steps from the center is fully hidden, so
+// exactly VISIBLE_CARDS cards show at rest and the next one grows in as you scroll toward it.
+const CARD_LIFE = 1; // seconds a card's timeline spans (buildSeamlessLoop below assumes 1)
+const CARD_HALF_WINDOW = ((VISIBLE_CARDS + 1) / 2) * CARD_SPACING; // seconds either side of the center where a card is visible
+const WIN_START = CARD_LIFE / 2 - CARD_HALF_WINDOW;
+const WIN_END = CARD_LIFE / 2 + CARD_HALF_WINDOW;
+const spreadStart = spreadEase(WIN_START);
+const spreadEnd = spreadEase(WIN_END);
+// Card position (xPercent) at a point in its trip; same path as before, just only the visible part of it is animated.
+const xAt = (p) => CARD_REACH * (1 - 2 * spreadEase(p));
+const windowEase = (q) => (spreadEase(WIN_START + q * (WIN_END - WIN_START)) - spreadStart) / (spreadEnd - spreadStart);
+
+// Size/opacity ramp: 0 at the edge of the window, 1 at the center. Tuned so the cards beside the center are ~80% and the
+// outer visible ones ~55% (fixed points of this curve at 1/3 and 2/3 of the way in).
+const fadeEase = (q) => 2.35 * q - 2.475 * q * q + 1.125 * q * q * q;
+
 const animateCard = (el) => {
   const tl = gsap.timeline();
   tl.fromTo(
@@ -112,18 +129,21 @@ const animateCard = (el) => {
       scale: 1,
       opacity: 1,
       zIndex: 100,
-      duration: 0.5,
+      duration: CARD_HALF_WINDOW,
       yoyo: true,
       repeat: 1,
-      ease: "power1.in",
+      ease: fadeEase,
       immediateRender: false,
     },
-  ).fromTo(
-    el,
-    { xPercent: CARD_REACH },
-    { xPercent: -CARD_REACH, duration: 1, ease: spreadEase, immediateRender: false },
-    0,
-  );
+    WIN_START,
+  )
+    .fromTo(
+      el,
+      { xPercent: xAt(WIN_START) },
+      { xPercent: xAt(WIN_END), duration: WIN_END - WIN_START, ease: windowEase, immediateRender: false },
+      WIN_START,
+    )
+    .set({}, {}, CARD_LIFE); // pad the timeline to CARD_LIFE
   return tl;
 };
 
@@ -329,7 +349,7 @@ function App() {
           draggedRef.current = true;
         },
         onDrag() {
-          scrub.vars.offset = this.startOffset + (this.startX - this.x) * 0.001;
+          scrub.vars.offset = this.startOffset + (this.startX - this.x) * (CARD_SPACING / 100); // same drag distance per card at any spacing
           scrub.invalidate().restart();
         },
         onDragEnd() {
