@@ -1,5 +1,5 @@
 import PageBlock from "./block/pageBlock";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -180,6 +180,7 @@ function App() {
   const cardsRef = useRef(null);
   const proxyRef = useRef(null);
   const draggedRef = useRef(false); // true while a drag is happening, so a drag doesn't also click a link
+  const [showCacheAlert, setShowCacheAlert] = useState(true); // dismissible hint to hard-refresh the cache
 
   // Rain: a fixed pool of icons that loop forever. Each one is re-randomized
   // (image, glow color, position, size, tilt) every time it starts a new fall,
@@ -449,6 +450,32 @@ function App() {
   return (
     <div className="relative h-screen overflow-hidden text-center font-[Dos] text-[15px]" ref={containerRef}>
       <div className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-lvh bg-cover bg-center bg-[url('/mainBg.jpg')] brightness-25 hue-rotate-20" />
+      {/* Dismissible hint: hard refresh to clear the cache */}
+      {showCacheAlert && (
+        <div
+          role="alert"
+          className="absolute inset-x-0 top-0 z-50 flex items-center justify-center gap-3 border-b border-white/20 bg-black/80 px-4 py-2 text-sm text-gray-200 backdrop-blur text-[16px]"
+        >
+          <p>
+            Not seeing the latest changes? Hard refresh to clear your cache:{" "}
+            <kbd className="rounded border border-[yellow] text-[13px] px-1.5 py-0.5">Cmd</kbd> +{" "}
+            <kbd className="rounded border border-[yellow] text-[13px] px-1.5 py-0.5">Shift</kbd> +{" "}
+            <kbd className="rounded border border-[yellow] text-[13px] px-1.5 py-0.5">R</kbd> on Mac, or{" "}
+            <kbd className="rounded border border-[yellow] text-[13px] px-1.5 py-0.5">Ctrl</kbd> +{" "}
+            <kbd className="rounded border border-[yellow] text-[13px] px-1.5 py-0.5">Shift</kbd> +{" "}
+            <kbd className="rounded border border-[yellow] text-[13px] px-1.5 py-0.5">R</kbd> on Windows.
+          </p>
+          <button
+            type="button"
+            aria-label="Close alert"
+            onClick={() => setShowCacheAlert(false)}
+            className="shrink-0 rounded px-2 text-lg leading-none text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            &times;
+          </button>
+        </div>
+      )}
+
       {/* Rain icon pool (positioned and animated by GSAP) */}
       {Array.from({ length: RAIN_COUNT }, (_, i) => (
         <img
