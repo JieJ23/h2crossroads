@@ -9,7 +9,7 @@ import { allAspectsInOrder } from "./util/misc";
 // Replace with your real list / import it from wherever it lives
 const P9_KEYS = [...allAspectsInOrder];
 
-const SPAWN_EVERY_MS = 750; // ms between each rain slot's first drop, higher = slower
+const SPAWN_EVERY_MS = 1000; // ms between each rain slot's first drop, higher = slower
 const RAIN_COUNT = 7; // number of reusable rain icons (~ fall time / SPAWN_EVERY); raise for denser rain
 const ICON_SIZE = 32; // matches w-8 / h-8
 
@@ -21,8 +21,8 @@ const CHASE_ICONS = ["Chronos", "Melinoe"];
 const CHASE_FOLLOWERS = ["Zagreus"];
 const CHASE_DURATION = 10; // seconds to cross the page's width (top and bottom edges)
 const CHASE_DURATION_VERTICAL = 4; // seconds to cross the page's height (left and right edges)
-const CHASE_DELAY = 0.6; // seconds between each front runner
-const TRAIL_DELAY = 0.3; // seconds between Melinoe and the first follower, and between followers (smaller = tighter)
+const CHASE_DELAY = 1; // seconds between each front runner
+const TRAIL_DELAY = 1; // seconds between Melinoe and the first follower, and between followers (smaller = tighter)
 const CHASE_SHAKE = 1; // px of side-to-side shake
 
 // Every icon in running order (front to back) with its start delay
@@ -231,7 +231,7 @@ function App() {
 
   return (
     <div
-      className="relative min-h-screen text-center flex flex-col justify-center items-center p-14 gap-4 overflow-hidden font-[Dos] text-[15px]"
+      className="relative min-h-screen text-center flex flex-col justify-center items-center px-4 gap-4 overflow-hidden font-[Dos] text-[15px]"
       ref={containerRef}
     >
       <div className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-lvh bg-cover bg-center bg-[url('/mainBg.jpg')] brightness-20 hue-rotate-20" />
@@ -242,7 +242,7 @@ function App() {
           key={i}
           alt=""
           decoding="async"
-          className="rain-icon pointer-events-none absolute left-0 top-0 h-8 w-8 rounded-full will-change-transform"
+          className="rain-icon pointer-events-none absolute left-0 top-0 h-8 w-8 will-change-transform"
         />
       ))}
 

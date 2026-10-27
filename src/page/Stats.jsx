@@ -176,7 +176,7 @@ export default function Stats() {
             <div className="flex flex-col gap-2 w-full bg-linear-to-t from-[#0e0c12] to-transparent rounded p-2 border border-white/10">
               <div className="flex flex-wrap gap-1">
                 {famStore.map((arr) => (
-                  <div className="bg-[#0e0c12] p-1 px-2 border border-white/10 px-2 gap-2 rounded flex items-end">
+                  <div className="bg-[#0e0c12] p-1 px-2 border border-white/10 gap-2 rounded flex items-end">
                     <img src={`/Boons/${arr[0]}.png`} alt="Boons" className="size-5" />
                     <div>{arr[0]}:</div>
                     <div>{arr[1]}</div>
