@@ -1,0 +1,23 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+    themes: night --default, night--prefersdark;
+  }
+
+    @font-face {
+    font-family: Ale;
+    font-style: normal;
+    src: url("/src/assets/fonts/Ale.ttf") format("truetype");
+  }
+
+    @font-face {
+    font-family: Mar;
+    font-style: normal;
+    src: url("/src/assets/fonts/Mar.ttf") format("truetype");
+  }
+
+    @font-face {
+    font-family: Dos;
+    font-style: normal;
+    src: url("/src/assets/fonts/Dosis.ttf") format("truetype");
+  }
+
