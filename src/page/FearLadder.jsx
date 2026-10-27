@@ -8,7 +8,7 @@ import { allAspectsInOrder, parseTimetoMs, sToA } from "../util/misc";
 
 const unseededData = highFearData.filter((obj) => obj.type && obj.type == "Unseeded");
 
-const FEAR_OPTIONS = [62, 63, 64, 65, 66, 67];
+const FEAR_OPTIONS = [55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67];
 const LOCATIONS = ["Underworld", "Surface"];
 
 export default function FearLadder() {

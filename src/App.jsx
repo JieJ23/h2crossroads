@@ -181,6 +181,7 @@ function App() {
   const proxyRef = useRef(null);
   const draggedRef = useRef(false); // true while a drag is happening, so a drag doesn't also click a link
   const [showCacheAlert, setShowCacheAlert] = useState(true); // dismissible hint to hard-refresh the cache
+  const [motionOn, setMotionOn] = useState(false); // rain + chasers on/off
 
   // Rain: a fixed pool of icons that loop forever. Each one is re-randomized
   // (image, glow color, position, size, tilt) every time it starts a new fall,
@@ -188,7 +189,7 @@ function App() {
   useGSAP(
     () => {
       const container = containerRef.current;
-      if (!container || P9_KEYS.length === 0) return;
+      if (!container || P9_KEYS.length === 0 || !motionOn) return;
 
       const mm = gsap.matchMedia();
       mm.add(DESKTOP_MOTION, () => {
@@ -239,7 +240,7 @@ function App() {
 
       return () => mm.revert();
     },
-    { scope: containerRef },
+    { scope: containerRef, dependencies: [motionOn], revertOnUpdate: true },
   );
 
   // Hero entrance timeline
@@ -343,6 +344,7 @@ function App() {
         type: "x",
         trigger: cardsRef.current,
         dragClickables: true,
+        allowContextMenu: true,
         onPress() {
           this.startOffset = scrub.vars.offset;
         },
@@ -378,6 +380,8 @@ function App() {
   // Uses x/y transforms (compositor-friendly) instead of left/top (layout every frame).
   useGSAP(
     () => {
+      if (!motionOn) return;
+
       const mm = gsap.matchMedia();
       mm.add(DESKTOP_MOTION, () => {
         const timelines = gsap.utils.toArray(".chaser").map((el, i) => {
@@ -444,7 +448,7 @@ function App() {
 
       return () => mm.revert();
     },
-    { scope: containerRef },
+    { scope: containerRef, dependencies: [motionOn], revertOnUpdate: true },
   );
 
   return (
@@ -482,7 +486,7 @@ function App() {
           key={i}
           alt=""
           decoding="async"
-          className="rain-icon pointer-events-none absolute left-0 top-0 h-8 w-8 will-change-transform max-md:hidden"
+          className={`rain-icon pointer-events-none absolute left-0 top-0 h-8 w-8 will-change-transform max-md:hidden ${motionOn ? "" : "hidden"}`}
         />
       ))}
 
@@ -549,6 +553,9 @@ function App() {
           <button type="button" className={`carousel-next ${buttonClass}`}>
             Next
           </button>
+          <button type="button" aria-pressed={motionOn} onClick={() => setMotionOn((v) => !v)} className={buttonClass}>
+            Effects: {motionOn ? "On" : "Off"}
+          </button>
         </div>
       </div>
 
@@ -556,7 +563,7 @@ function App() {
       <div ref={proxyRef} className="invisible absolute" />
 
       {/* Chase track around the edge of the page */}
-      <div className="pointer-events-none absolute inset-2 z-10 max-md:hidden">
+      <div className={`pointer-events-none absolute inset-2 z-10 max-md:hidden ${motionOn ? "" : "hidden"}`}>
         {CHASERS.map(({ icon }, i) => (
           <div key={`${icon}-${i}`} className="chaser absolute left-0 top-0 h-10 w-10 will-change-transform">
             <img src={`./Misc/${icon}.png`} alt="" className="h-full w-full" />

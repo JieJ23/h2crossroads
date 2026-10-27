@@ -268,6 +268,9 @@ export default function Submit() {
               <option key="Unseeded" value={"Unseeded"}>
                 Unseeded
               </option>
+              <option key="Modded" value={"Modded"}>
+                Modded
+              </option>
             </select>
             <div className="text-orange-300">* De-select to select boons</div>
 
