@@ -152,6 +152,8 @@ function buildSeamlessLoop(items, spacing, animateFunc) {
 }
 
 const NO_REDUCED_MOTION = "(prefers-reduced-motion: no-preference)";
+// Rain and chasers are decorative and costly, so they only run on tablet/desktop widths (matches Tailwind's `md` breakpoint).
+const DESKTOP_MOTION = `${NO_REDUCED_MOTION} and (min-width: 768px)`;
 
 function App() {
   const containerRef = useRef(null);
@@ -168,7 +170,7 @@ function App() {
       if (!container || P9_KEYS.length === 0) return;
 
       const mm = gsap.matchMedia();
-      mm.add(NO_REDUCED_MOTION, () => {
+      mm.add(DESKTOP_MOTION, () => {
         let w = container.offsetWidth;
         let h = container.offsetHeight;
         const ro = new ResizeObserver(() => {
@@ -356,7 +358,7 @@ function App() {
   useGSAP(
     () => {
       const mm = gsap.matchMedia();
-      mm.add(NO_REDUCED_MOTION, () => {
+      mm.add(DESKTOP_MOTION, () => {
         const timelines = gsap.utils.toArray(".chaser").map((el, i) => {
           const img = el.querySelector("img");
           const track = el.parentElement;
@@ -434,7 +436,7 @@ function App() {
           key={i}
           alt=""
           decoding="async"
-          className="rain-icon pointer-events-none absolute left-0 top-0 h-8 w-8 will-change-transform"
+          className="rain-icon pointer-events-none absolute left-0 top-0 h-8 w-8 will-change-transform max-md:hidden"
         />
       ))}
 
@@ -464,7 +466,7 @@ function App() {
           return (
             <li key={link.to} className={`carousel-card absolute inset-0`}>
               <div
-                className="absolute inset-0 overflow-hidden rounded-lg bg-center bg-cover drop-shadow-[0_0_8px_black]"
+                className="absolute inset-0 overflow-hidden rounded-lg bg-center bg-cover"
                 style={{ backgroundImage: `url("/Arcana/c${index + 1}.png")` }}
               >
                 <div className="absolute inset-0 bg-linear-to-t from-black via-black/50 via-40% to-transparent" />
@@ -508,7 +510,7 @@ function App() {
       <div ref={proxyRef} className="invisible absolute" />
 
       {/* Chase track around the edge of the page */}
-      <div className="pointer-events-none absolute inset-2 z-10">
+      <div className="pointer-events-none absolute inset-2 z-10 max-md:hidden">
         {CHASERS.map(({ icon }, i) => (
           <div key={`${icon}-${i}`} className="chaser absolute left-0 top-0 h-10 w-10 will-change-transform">
             <img src={`./Misc/${icon}.png`} alt="" className="h-full w-full" />
