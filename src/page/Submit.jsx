@@ -80,10 +80,15 @@ export default function Submit() {
   const [location, setLocation] = useState([]);
   const [fear, setFear] = useState(1);
   const [aspect, setAspect] = useState(0);
-  const [coreBoon, setCoreBoons] = useState(["Attack", "Special", "Cast", "Sprint", "Magick"]);
   const [hammers, setHammers] = useState([]);
   const [keepsakes, setKeepsakes] = useState([]);
-  const [gameType, setGameType] = useState("Hi");
+  const [gameType, setGameType] = useState("");
+  // 
+  const [coreA, setCoreA] = useState("Attack")
+  const [coreS, setCoreS] = useState("Special")
+  const [coreC, setCoreC] = useState("Cast")
+  const [coreSp, setCoreSp] = useState("Sprint")
+  const [coreM, setCoreM] = useState("Magick")
 
   async function Submit(e) {
     e.preventDefault();
@@ -114,10 +119,14 @@ export default function Submit() {
       formEle.reset();
       setLocation([]);
       setAspect(0);
-      setCoreBoons(["Attack", "Special", "Cast", "Sprint", "Magick"]);
       setHammers([]);
       setKeepsakes([]);
       setGameType([]);
+      setCoreA("Attack");
+      setCoreS("Special");
+      setCoreC("Cast");
+      setCoreSp("Sprint");
+      setCoreM("Magick");
       console.log(`good`);
       alert("Form submitted successfully!");
     } catch (error) {
@@ -189,9 +198,8 @@ export default function Submit() {
                 return (
                   <div
                     key={item}
-                    className={`border px-2 py-1 rounded cursor-pointer flex gap-0.5 ${
-                      selected ? "bg-white text-black" : "border-white/10"
-                    }`}
+                    className={`border px-2 py-1 rounded cursor-pointer flex gap-0.5 ${selected ? "bg-white text-black" : "border-white/10"
+                      }`}
                     onClick={() =>
                       setLocation((prev) => {
                         if (prev.includes(item)) {
@@ -278,24 +286,16 @@ export default function Submit() {
               className="select w-full rounded bg-[#0e0c12] max-w-125 focus:outline-0"
               placeholder="Core Boons"
               name="cor"
-              value={sortByCoreOrder(coreBoon).join(",")}
+              value={sortByCoreOrder([coreA, coreS, coreC, coreSp, coreM]).join(",")}
               required={true}
             />
             <div className="flex gap-1">
               <div className="flex flex-col gap-1">
                 {bAttack.map((item) => (
                   <div
-                    className={`cursor-pointer border border-white/10 min-w-18 sm:min-w-25 rounded flex items-center gap-1 ${coreBoon.includes(item) ? `bg-white text-black` : ``}`}
+                    className={`cursor-pointer border border-white/10 min-w-18 sm:min-w-25 rounded flex items-center gap-1 ${coreA === (item) ? `bg-white text-black` : ``}`}
                     onClick={() =>
-                      setCoreBoons((prev) => {
-                        if (prev.includes(item)) {
-                          return prev.filter((arr) => arr !== item);
-                        }
-                        if (prev.length >= 5) {
-                          return [...prev.slice(1), item];
-                        }
-                        return [...prev, item];
-                      })
+                      setCoreA(item)
                     }
                   >
                     <img
@@ -311,17 +311,9 @@ export default function Submit() {
               <div className="flex flex-col gap-1">
                 {bSpecial.map((item) => (
                   <div
-                    className={`cursor-pointer border border-white/10 min-w-18 sm:min-w-25 rounded flex items-center gap-1 ${coreBoon.includes(item) ? `bg-white text-black` : ``}`}
+                    className={`cursor-pointer border border-white/10 min-w-18 sm:min-w-25 rounded flex items-center gap-1 ${coreS === (item) ? `bg-white text-black` : ``}`}
                     onClick={() =>
-                      setCoreBoons((prev) => {
-                        if (prev.includes(item)) {
-                          return prev.filter((arr) => arr !== item);
-                        }
-                        if (prev.length >= 5) {
-                          return [...prev.slice(1), item];
-                        }
-                        return [...prev, item];
-                      })
+                      setCoreS(item)
                     }
                   >
                     <img
@@ -337,17 +329,9 @@ export default function Submit() {
               <div className="flex flex-col gap-1">
                 {bCast.map((item) => (
                   <div
-                    className={`cursor-pointer border border-white/10 min-w-18 sm:min-w-25 rounded flex items-center gap-1 ${coreBoon.includes(item) ? `bg-white text-black` : ``}`}
+                    className={`cursor-pointer border border-white/10 min-w-18 sm:min-w-25 rounded flex items-center gap-1 ${coreC === (item) ? `bg-white text-black` : ``}`}
                     onClick={() =>
-                      setCoreBoons((prev) => {
-                        if (prev.includes(item)) {
-                          return prev.filter((arr) => arr !== item);
-                        }
-                        if (prev.length >= 5) {
-                          return [...prev.slice(1), item];
-                        }
-                        return [...prev, item];
-                      })
+                      setCoreC(item)
                     }
                   >
                     <img
@@ -363,17 +347,9 @@ export default function Submit() {
               <div className="flex flex-col gap-1">
                 {bSprint.map((item) => (
                   <div
-                    className={`cursor-pointer border border-white/10 min-w-18 sm:min-w-25 rounded flex items-center gap-1 ${coreBoon.includes(item) ? `bg-white text-black` : ``}`}
+                    className={`cursor-pointer border border-white/10 min-w-18 sm:min-w-25 rounded flex items-center gap-1 ${coreSp === (item) ? `bg-white text-black` : ``}`}
                     onClick={() =>
-                      setCoreBoons((prev) => {
-                        if (prev.includes(item)) {
-                          return prev.filter((arr) => arr !== item);
-                        }
-                        if (prev.length >= 5) {
-                          return [...prev.slice(1), item];
-                        }
-                        return [...prev, item];
-                      })
+                      setCoreSp(item)
                     }
                   >
                     <img
@@ -389,17 +365,9 @@ export default function Submit() {
               <div className="flex flex-col gap-1">
                 {bMagick.map((item) => (
                   <div
-                    className={`cursor-pointer border border-white/10 min-w-18 sm:min-w-25 rounded flex items-center gap-1 ${coreBoon.includes(item) ? `bg-white text-black` : ``}`}
+                    className={`cursor-pointer border border-white/10 min-w-18 sm:min-w-25 rounded flex items-center gap-1 ${coreM === (item) ? `bg-white text-black` : ``}`}
                     onClick={() =>
-                      setCoreBoons((prev) => {
-                        if (prev.includes(item)) {
-                          return prev.filter((arr) => arr !== item);
-                        }
-                        if (prev.length >= 5) {
-                          return [...prev.slice(1), item];
-                        }
-                        return [...prev, item];
-                      })
+                      setCoreM(item)
                     }
                   >
                     <img
@@ -425,9 +393,8 @@ export default function Submit() {
                 return (
                   <div
                     key={item}
-                    className={`border px-2 py-1 rounded cursor-pointer flex gap-0.5 ${
-                      selected ? "bg-white text-black" : "border-white/10"
-                    }`}
+                    className={`border px-2 py-1 rounded cursor-pointer flex gap-0.5 ${selected ? "bg-white text-black" : "border-white/10"
+                      }`}
                     onClick={() =>
                       setHammers((prev) => {
                         if (prev.includes(item)) {
@@ -463,9 +430,8 @@ export default function Submit() {
                 return (
                   <div
                     key={item}
-                    className={`border px-2 py-1 rounded cursor-pointer flex gap-0.5 ${
-                      selected ? "bg-white text-black" : "border-white/10"
-                    }`}
+                    className={`border px-2 py-1 rounded cursor-pointer flex gap-0.5 ${selected ? "bg-white text-black" : "border-white/10"
+                      }`}
                     onClick={() =>
                       setKeepsakes((prev) => {
                         if (prev.length >= 4) {

@@ -5,16 +5,19 @@ import { useData } from "../hooks/DataFetch";
 import { Link } from "react-router-dom";
 import Loading from "../block/loading";
 import { allAspectsInOrder, parseTimetoMs, sToA } from "../util/misc";
+import { hammerID } from "../util/hammerId"
 
 const unseededData = highFearData.filter((obj) => obj.type && obj.type == "Unseeded");
 
 const FEAR_OPTIONS = [55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67];
 const LOCATIONS = ["Underworld", "Surface"];
+const CATEGORY = ["Core", "Hammers", "Keepsakes"];
 
 export default function FearLadder() {
   const { posts, loader } = useData();
   const [location, setLocation] = useState(`Underworld`);
   const [maxFear, setMaxFear] = useState(67);
+  const [category, setCategory] = useState("Core");
 
   const allRuns = useMemo(() => [...unseededData, ...(posts || [])], [posts]);
 
@@ -78,6 +81,19 @@ export default function FearLadder() {
                   </option>
                 ))}
               </select>
+
+              <select
+                className="select bg-[#1e123c] border-none rounded outline-none w-32"
+                value={category}
+                aria-label="Category"
+                onChange={(e) => setCategory(e.target.value)}
+              >
+                {CATEGORY.map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1 md:gap-2">
               {fullData.map((arr, oi) => (
@@ -98,14 +114,53 @@ export default function FearLadder() {
                       <div className="text-end sm:text-center order-3 sm:order-2">{obj.tim}</div>
 
                       <div className="w-full flex justify-end order-2 sm:order-3">
-                        {sToA(obj.cor).map((ite, index) => (
-                          <img
-                            draggable={false}
-                            src={`/Boons/${ite}.png`}
-                            alt="Core Boon"
-                            className="size-7 sm:size-6"
-                          />
-                        ))}
+                        {category === "Core" && (
+                          sToA(obj.cor).map((ite, index) => (
+                            <img
+                              draggable={false}
+                              src={`/Boons/${ite}.png`}
+                              alt="Core Boon"
+                              className="size-7 sm:size-6"
+                              key={index}
+                            />
+                          ))
+                        )}
+                        {category === "Hammers" && obj.ham && (
+                          sToA(obj.ham).map((ite, index) => (
+                            <div key={ite} className="tooltip z-20">
+                              <div className="tooltip-content p-0 rounded">
+                                <div className=" bg-white text-black p-1 px-2 rounded font-semibold text-[14px]">
+                                  {ite}
+                                </div>
+                              </div>
+                              <img
+                                draggable={false}
+                                src={`/Hammers/${hammerID[ite]}.png`}
+                                alt="Hammers"
+                                className="size-7 sm:size-6"
+                                key={index}
+                              />
+                            </div>
+                          ))
+                        )}
+                        {category === "Keepsakes" && obj.ks && (
+                          sToA(obj.ks).map((ite, index) => (
+                            <div key={ite} className="tooltip z-20">
+                              <div className="tooltip-content p-0 rounded">
+                                <div className=" bg-white text-black p-1 px-2 rounded font-semibold text-[14px]">
+                                  {ite}
+                                </div>
+                              </div>
+                              <img
+                                draggable={false}
+                                src={`/Keepsakes/${ite}.png`}
+                                alt="Keepsakes"
+                                className="size-7 sm:size-6"
+                                key={index}
+                              />
+                            </div>
+                          ))
+                        )}
                       </div>
                     </div>
                   ))}

@@ -17,35 +17,42 @@ const makeEmptyPlayer = () =>
 
 export default function Player() {
   const { posts, loader } = useData();
-  const [player, setPlayer] = useState("Frei");
+  const [player, setPlayer] = useState("");
 
   const allRuns = useMemo(() => [...highFearData, ...(posts || [])], [posts]);
 
-  const bestRuns = useMemo(() => {
-    const result = {};
+
+
+  const { bestRuns, overallBest } = useMemo(() => {
+    const byPlayer = {};
+    const overall = makeEmptyPlayer();
+
+    const isBetter = (candidate, current) =>
+      current === null || Number(candidate[FEAR_KEY]) > Number(current[FEAR_KEY]);
 
     for (const run of allRuns) {
       const regionIndex = REGIONS.indexOf(run.loc);
       const aspect = run[ASPECT_KEY];
       if (regionIndex === -1 || !ASPECT_SET.has(aspect)) continue;
 
-      const playerName = run.nam;
-      const entry = (result[playerName] ??= makeEmptyPlayer())[aspect][regionIndex];
-      const current = entry[run.loc];
+      // per player
+      const playerEntry = (byPlayer[run.nam] ??= makeEmptyPlayer())[aspect][regionIndex];
+      if (isBetter(run, playerEntry[run.loc])) playerEntry[run.loc] = run;
 
-      if (current === null || Number(run[FEAR_KEY]) > Number(current[FEAR_KEY])) {
-        entry[run.loc] = run;
-      }
+      // across everyone
+      const overallEntry = overall[aspect][regionIndex];
+      if (isBetter(run, overallEntry[run.loc])) overallEntry[run.loc] = run;
     }
 
-    return result;
+    return { bestRuns: byPlayer, overallBest: overall };
   }, [allRuns]);
 
   const allAvailablePlayers = useMemo(() => Object.keys(bestRuns), [bestRuns]).sort((a, b) =>
     a.toLowerCase().localeCompare(b.toLowerCase()),
   );
   // Safely get current player data or fallback to empty structure
-  const currentPlayerRuns = bestRuns[player] || makeEmptyPlayer();
+  const currentPlayerRuns = player ? (bestRuns[player] ?? makeEmptyPlayer()) : overallBest;
+
 
   return (
     <PageBlock>
@@ -78,6 +85,8 @@ export default function Player() {
               const underworldRun = aspectData?.[0]?.["Underworld"];
               const surfaceRun = aspectData?.[1]?.["Surface"];
 
+              const isMaxFear = (fear) => Number(fear) === 67;
+
               return (
                 <div
                   key={ite}
@@ -88,16 +97,18 @@ export default function Player() {
                     {/* Surface Section (Index 1) */}
                     <div className="flex-1 flex items-center justify-center gap-2">
                       <img src="/Biome/Surface.png" alt="Biome" className="size-8" />
-                      <div className="flex flex-col text-start">
-                        <div>{surfaceRun?.[FEAR_KEY] ?? ""}</div>
+                      <div className={`flex flex-col text-start`}>
+
+                        <div className={`${isMaxFear(surfaceRun?.[FEAR_KEY]) ? "text-yellow-300 font-semibold" : ""}`}>{Number(surfaceRun?.[FEAR_KEY]) === 67 ? "Max Fear" : (surfaceRun?.[FEAR_KEY] ?? "")}</div>
                         <div>{surfaceRun?.tim ?? ""}</div>
                       </div>
                     </div>
                     {/* Underworld Section (Index 0) */}
                     <div className="flex-1 flex items-center justify-center gap-2">
                       <img src="/Biome/Underworld.png" alt="Biome" className="size-8" />
-                      <div className="flex flex-col text-start">
-                        <div>{underworldRun?.[FEAR_KEY] ?? ""}</div>
+                      <div className={`flex flex-col text-start`}>
+
+                        <div className={`${isMaxFear(underworldRun?.[FEAR_KEY]) ? "text-green-400 font-semibold" : ""}`}>{Number(underworldRun?.[FEAR_KEY]) === 67 ? "Max Fear" : (underworldRun?.[FEAR_KEY] ?? "")}</div>
                         <div>{underworldRun?.tim ?? ""}</div>
                       </div>
                     </div>
@@ -108,7 +119,8 @@ export default function Player() {
             })}
           </div>
         </div>
-      )}
-    </PageBlock>
+      )
+      }
+    </PageBlock >
   );
 }
