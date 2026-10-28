@@ -46,7 +46,7 @@ createRoot(document.getElementById("root")).render(
 
             <Route path="/Submit" element={<Submit />} />
 
-            <Route patch="/*" element={<App />} />
+            <Route patch="*" element={<App />} />
           </Routes>
         </Router>
       </DataProvider>
