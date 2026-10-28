@@ -45,6 +45,8 @@ createRoot(document.getElementById("root")).render(
             <Route path="/BiomeMap" element={<BiomeMap />} />
 
             <Route path="/Submit" element={<Submit />} />
+
+            <Route patch="/*" element={<App />} />
           </Routes>
         </Router>
       </DataProvider>
