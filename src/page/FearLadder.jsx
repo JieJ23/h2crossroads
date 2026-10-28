@@ -5,9 +5,7 @@ import { useData } from "../hooks/DataFetch";
 import { Link } from "react-router-dom";
 import Loading from "../block/loading";
 import { allAspectsInOrder, parseTimetoMs, sToA } from "../util/misc";
-import { hammerID } from "../util/hammerId"
-
-const unseededData = highFearData.filter((obj) => obj.type && obj.type == "Unseeded");
+import { hammerID } from "../util/hammerId";
 
 const FEAR_OPTIONS = [55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67];
 const LOCATIONS = ["Underworld", "Surface"];
@@ -19,7 +17,10 @@ export default function FearLadder() {
   const [maxFear, setMaxFear] = useState(67);
   const [category, setCategory] = useState("Core");
 
-  const allRuns = useMemo(() => [...unseededData, ...(posts || [])], [posts]);
+  const allRuns = useMemo(
+    () => [...highFearData, ...(posts || [])],
+    [posts].filter((obj) => obj.type && obj.type === "Unseeded"),
+  );
 
   const fullData = useMemo(() => {
     const TOP_N = 10;
@@ -114,7 +115,7 @@ export default function FearLadder() {
                       <div className="text-end sm:text-center order-3 sm:order-2">{obj.tim}</div>
 
                       <div className="w-full flex justify-end order-2 sm:order-3">
-                        {category === "Core" && (
+                        {category === "Core" &&
                           sToA(obj.cor).map((ite, index) => (
                             <img
                               draggable={false}
@@ -123,9 +124,9 @@ export default function FearLadder() {
                               className="size-7 sm:size-6"
                               key={index}
                             />
-                          ))
-                        )}
-                        {category === "Hammers" && obj.ham && (
+                          ))}
+                        {category === "Hammers" &&
+                          obj.ham &&
                           sToA(obj.ham).map((ite, index) => (
                             <div key={ite} className="tooltip z-20">
                               <div className="tooltip-content p-0 rounded">
@@ -141,9 +142,9 @@ export default function FearLadder() {
                                 key={index}
                               />
                             </div>
-                          ))
-                        )}
-                        {category === "Keepsakes" && obj.ks && (
+                          ))}
+                        {category === "Keepsakes" &&
+                          obj.ks &&
                           sToA(obj.ks).map((ite, index) => (
                             <div key={ite} className="tooltip z-20">
                               <div className="tooltip-content p-0 rounded">
@@ -159,8 +160,7 @@ export default function FearLadder() {
                                 key={index}
                               />
                             </div>
-                          ))
-                        )}
+                          ))}
                       </div>
                     </div>
                   ))}

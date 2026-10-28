@@ -1,14 +1,14 @@
 import PageBlock from "../block/pageBlock";
 import { allAspectsInOrder } from "../util/misc";
 
-import mergedOrderData from "../assets/json/bundle";
+import highFearData from "../assets/json/V.json";
 import { hammerID } from "../util/hammerId";
 
 import { bAxe, bStaff, bDagger, bLob, bSuit, bTorch } from "../util/formData";
 
 import { useData } from "../hooks/DataFetch";
 import Loading from "../block/loading";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 const types = [`Attack`, `Special`, `Cast`, `Sprint`, `Magick`];
 const regions = [`Underworld`, `Surface`];
@@ -17,17 +17,26 @@ export default function Stats() {
   const { posts, loader } = useData();
   const [aspect, setAspect] = useState([]);
   const [region, setRegion] = useState([]);
+  const [player, setPlayer] = useState("All Player");
 
-  const fullData = [...mergedOrderData, ...posts].filter((obj) => {
+  const fullData = [...highFearData, ...(posts || [])];
+
+  const filterData = fullData.filter((obj) => {
     const currentAspect = aspect.length === 0 || aspect.includes(obj.asp);
 
     const currentRegion = region.length === 0 || region.includes(obj.loc);
 
-    return currentAspect && currentRegion;
+    const currentPlayer = player === "All Player" ? obj : obj.nam === player;
+
+    return currentAspect && currentRegion && currentPlayer;
   });
 
+  const allAvailablePlayers = useMemo(() => [...new Set(fullData.map((obj) => obj.nam))]).sort((a, b) =>
+    a.toLowerCase().localeCompare(b.toLowerCase()),
+  );
+
   const boonStore = Object.entries(
-    fullData.reduce((acc, arr) => {
+    filterData.reduce((acc, arr) => {
       if (arr.cor) {
         const arrayItem = arr.cor.split(",");
         arrayItem.forEach((item) => {
@@ -49,7 +58,7 @@ export default function Stats() {
   ).sort(([a], [b]) => types.indexOf(a) - types.indexOf(b));
 
   const hammerStore = Object.entries(
-    fullData.reduce((acc, arr) => {
+    filterData.reduce((acc, arr) => {
       if (arr.ham) {
         const arrayItem = arr.ham.split(",");
         arrayItem.forEach((item) => {
@@ -75,7 +84,7 @@ export default function Stats() {
     .filter(([, entries]) => entries.length > 0); // hide weapons with no hammers picked
 
   const famStore = Object.entries(
-    fullData.reduce((acc, arr) => {
+    filterData.reduce((acc, arr) => {
       const familiar = arr.fam;
 
       acc[familiar] = (acc[familiar] || 0) + 1;
@@ -85,7 +94,7 @@ export default function Stats() {
 
   function findBiomeKeepData(biomeNum) {
     const keepStore = Object.entries(
-      fullData.reduce((acc, arr) => {
+      filterData.reduce((acc, arr) => {
         if (arr.ks) {
           const arrayItem = arr.ks.split(",");
           const biome = arrayItem[biomeNum];
@@ -107,6 +116,19 @@ export default function Stats() {
       ) : (
         <div className="w-full my-4">
           <div className="flex flex-col gap-2">
+            <select
+              className={`w-50 text-center select bg-[#1e123c] border-none rounded outline-none`}
+              value={player}
+              aria-label="Player"
+              onChange={(e) => setPlayer(e.target.value)}
+            >
+              <option value={""}>All Players</option>
+              {allAvailablePlayers.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
             <div className="flex justify-start flex-wrap gap-2 px-2">
               {regions.map((item) => (
                 <div
