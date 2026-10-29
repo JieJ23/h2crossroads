@@ -545,7 +545,17 @@ export default function Run() {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5  gap-4 select-none">
                 {paginatedData.map((obj, index) => (
                   <div className="rounded-lg scale-90 sm:scale-100" key={index}>
-                    <Link to={obj.src} target="_blank">
+                    <Link
+                      to={obj.src || "#"}
+                      target="_blank"
+                      aria-disabled={!obj.src}
+                      tabIndex={obj.src ? undefined : -1}
+                      className={!obj.src ? "cursor-default" : ""}
+                      onClick={(e) => {
+                        // No source available: block the redirect
+                        if (!obj.src) e.preventDefault();
+                      }}
+                    >
                       {videoLinks.some((link) => obj.src.includes(link)) ? (
                         <img
                           src={`https://img.youtube.com/vi/${getYTid(obj.src)}/maxresdefault.jpg`}
