@@ -719,7 +719,11 @@ export default function Run() {
                               color: biomeColor(findLoc(obj.loc)),
                             }}
                           >
-                            {videoLinks.some((link) => obj.src.includes(link)) ? `Video` : `Image`}
+                            {obj.src !== ""
+                              ? videoLinks.some((link) => obj.src.includes(link))
+                                ? `Video`
+                                : `Image`
+                              : `-`}
                           </span>
                         </div>
                       </div>
@@ -800,14 +804,19 @@ export default function Run() {
                           </td>
                           <td className="whitespace-nowrap">{obj.dat.slice(0, 10)}</td>
                           <td>
-                            <Link
-                              to={obj.src}
-                              target="_blank"
-                              className="hover:underline"
-                              style={{ color: biomeColor(biome) }}
-                            >
-                              {isVideo ? "Video" : "Image"}
-                            </Link>
+                            {obj.src !== "" ? (
+                              <a
+                                href={obj.src}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:underline"
+                                style={{ color: biomeColor(biome) }}
+                              >
+                                {isVideo ? "Video" : "Image"}
+                              </a>
+                            ) : (
+                              <div>-</div>
+                            )}
                           </td>
                         </tr>
                       );
