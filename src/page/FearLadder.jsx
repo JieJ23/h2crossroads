@@ -18,8 +18,7 @@ export default function FearLadder() {
   const [category, setCategory] = useState("Core");
 
   const allRuns = useMemo(
-    () => [...highFearData, ...(posts || [])],
-    [posts].filter((obj) => obj.type && obj.type === "Unseeded"),
+    () => [...highFearData, ...(posts || [])].filter((obj) => obj.type && obj.type === "Unseeded"),
   );
 
   const fullData = useMemo(() => {
