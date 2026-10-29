@@ -170,7 +170,8 @@ const ITEMS_PER_PAGE = 20;
 export default function Run() {
   const { posts, loader } = useData();
   const [state, dispatch] = useReducer(runsReducer, initialState);
-  const { aspect, player, category, sort, minFear, maxFear, minTime, maxTime, unseeded, videoOnly, unique, page } = state;
+  const { aspect, player, category, sort, minFear, maxFear, minTime, maxTime, unseeded, videoOnly, unique, page } =
+    state;
 
   const allRuns = useMemo(() => [...mergedOrderData, ...(posts || [])], [posts]);
 
@@ -748,7 +749,7 @@ export default function Run() {
                       const biome = findLoc(obj.loc);
                       const isVideo = videoLinks.some((link) => obj.src.includes(link));
                       return (
-                        <tr key={index} className="hover:bg-white/5 border-white/10">
+                        <tr key={`${obj.nam}-${obj.dat}-${obj.tim}`} className="hover:bg-white/5 border-white/10">
                           <td>{obj.fea !== 0 && obj.fea}</td>
                           <td>
                             <span
