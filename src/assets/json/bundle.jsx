@@ -1,6 +1,7 @@
 import earlyAccess from "./P.json";
 import v1 from "./V.json";
 import src from "./srcData.json";
+import src2 from "./srcData2.json";
 
 import { parseTimetoMs } from "../../util/misc";
 
@@ -14,7 +15,7 @@ const fixName = {
   ClearlyNotJao: "clearlyNotJao",
 };
 
-export const fixedSrc = src.map((obj) => ({
+export const fixedSrc = [...src, ...src2].map((obj) => ({
   ...obj,
   nam: fixName[obj.nam] ?? obj.nam,
 }));

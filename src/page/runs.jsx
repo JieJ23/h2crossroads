@@ -150,6 +150,66 @@ const toTime = (d) => {
 
 const DEFAULT_CORES = ["Attack", "Special", "Cast", "Sprint", "Magick"];
 
+// View toggle icons
+function GridIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="size-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <rect x="3" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" />
+      <rect x="14" y="14" width="7" height="7" rx="1" />
+    </svg>
+  );
+}
+
+function TableIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="size-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path strokeLinecap="round" d="M3 10h18M3 15h18M9 10v10" />
+    </svg>
+  );
+}
+
+function InfoIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="size-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path strokeLinecap="round" d="M12 11v5M12 8h.01" />
+    </svg>
+  );
+}
+
+// Tooltip bubble that shows a run's description (obj.des)
+const DesTip = ({ text }) => (
+  <div className="tooltip-content p-0 rounded">
+    <div className="bg-white text-black p-1 px-2 rounded font-semibold text-[14px] max-w-64 whitespace-normal text-left">
+      {text}
+    </div>
+  </div>
+);
+
 // Small bordered icon used by the table view
 function BoonIcon({ src, alt, border = "/Boons/Border.png", name }) {
   return (
@@ -523,19 +583,21 @@ export default function Run() {
               </div>
               <div className="join ml-auto" role="group" aria-label="View mode">
                 {[
-                  ["grid", "Grid"],
-                  ["table", "Table"],
-                ].map(([key, label]) => (
+                  ["grid", "Grid view", <GridIcon key="g" />],
+                  ["table", "Table view", <TableIcon key="t" />],
+                ].map(([key, label, icon]) => (
                   <button
                     key={key}
                     type="button"
                     aria-pressed={view === key}
-                    className={`join-item btn btn-sm border-none ${
+                    aria-label={label}
+                    title={label}
+                    className={`join-item btn btn-sm btn-square border-none ${
                       view === key ? "bg-white text-black" : "bg-[#1e123c] text-white"
                     }`}
                     onClick={() => setView(key)}
                   >
-                    {label}
+                    {icon}
                   </button>
                 ))}
               </div>
@@ -716,11 +778,19 @@ export default function Run() {
                           ))}
                       </div>
                       <div className="p-0.5 px-2 flex justify-between">
-                        <div
-                          className="cursor-pointer"
-                          onClick={() => dispatch({ type: "SET_PLAYER", payload: obj.nam })}
-                        >
-                          {obj.nam}
+                        <div className="flex items-center gap-1">
+                          <div
+                            className="cursor-pointer"
+                            onClick={() => dispatch({ type: "SET_PLAYER", payload: obj.nam })}
+                          >
+                            {obj.nam}
+                          </div>
+                          {obj.des ? (
+                            <div className="tooltip tooltip-top z-20 text-blue-400">
+                              <DesTip text={obj.des} />
+                              <InfoIcon />
+                            </div>
+                          ) : null}
                         </div>
                         <div>
                           {obj.dat.slice(0, 10)} /{" "}
@@ -756,6 +826,7 @@ export default function Run() {
                       <th>Keepsakes</th>
                       <th>Date</th>
                       <th>Source</th>
+                      <th>Note</th>
                     </tr>
                   </thead>
                   <tbody className="text-[16px]">
@@ -827,6 +898,14 @@ export default function Run() {
                             ) : (
                               <div>-</div>
                             )}
+                          </td>
+                          <td>
+                            {obj.des ? (
+                              <div className="tooltip tooltip-left z-20 text-blue-400">
+                                <DesTip text={obj.des} />
+                                <InfoIcon />
+                              </div>
+                            ) : null}
                           </td>
                         </tr>
                       );

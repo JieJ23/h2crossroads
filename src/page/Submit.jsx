@@ -83,12 +83,14 @@ export default function Submit() {
   const [hammers, setHammers] = useState([]);
   const [keepsakes, setKeepsakes] = useState([]);
   const [gameType, setGameType] = useState("");
-  // 
-  const [coreA, setCoreA] = useState("Attack")
-  const [coreS, setCoreS] = useState("Special")
-  const [coreC, setCoreC] = useState("Cast")
-  const [coreSp, setCoreSp] = useState("Sprint")
-  const [coreM, setCoreM] = useState("Magick")
+  const [bioMaxLength, setBioMaxLength] = useState(100);
+  const [bio, setBio] = useState("");
+  //
+  const [coreA, setCoreA] = useState("Attack");
+  const [coreS, setCoreS] = useState("Special");
+  const [coreC, setCoreC] = useState("Cast");
+  const [coreSp, setCoreSp] = useState("Sprint");
+  const [coreM, setCoreM] = useState("Magick");
 
   async function Submit(e) {
     e.preventDefault();
@@ -106,11 +108,12 @@ export default function Submit() {
     formDatab.append("asp", currentAspect);
     formDatab.append("fea", fear);
     formDatab.append("type", gameType);
+    formDatab.append("des", bio);
 
     setLoading(true);
     try {
       const res = await fetch(
-        "https://script.google.com/macros/s/AKfycbxrCfT4prHWH3laRraafqkyljE2jToUbNd0J-DQtUhUO1GvZnsyD81CWfWpASSTbw6-/exec",
+        "https://script.google.com/macros/s/AKfycbyYHkDHT3UP0TLej-DVyCOh-rrHPpWvNgxDSo63uBHcyFCEpdZwhmA8QHOyurA1CPhK/exec ",
         {
           method: "POST",
           body: formDatab,
@@ -122,6 +125,8 @@ export default function Submit() {
       setHammers([]);
       setKeepsakes([]);
       setGameType([]);
+      setBio("");
+      setBio("");
       setCoreA("Attack");
       setCoreS("Special");
       setCoreC("Cast");
@@ -198,8 +203,9 @@ export default function Submit() {
                 return (
                   <div
                     key={item}
-                    className={`border px-2 py-1 rounded cursor-pointer flex gap-0.5 ${selected ? "bg-white text-black" : "border-white/10"
-                      }`}
+                    className={`border px-2 py-1 rounded cursor-pointer flex gap-0.5 ${
+                      selected ? "bg-white text-black" : "border-white/10"
+                    }`}
                     onClick={() =>
                       setLocation((prev) => {
                         if (prev.includes(item)) {
@@ -293,10 +299,8 @@ export default function Submit() {
               <div className="flex flex-col gap-1">
                 {bAttack.map((item) => (
                   <div
-                    className={`cursor-pointer border border-white/10 min-w-18 sm:min-w-25 rounded flex items-center gap-1 ${coreA === (item) ? `bg-white text-black` : ``}`}
-                    onClick={() =>
-                      setCoreA(item)
-                    }
+                    className={`cursor-pointer border border-white/10 min-w-18 sm:min-w-25 rounded flex items-center gap-1 ${coreA === item ? `bg-white text-black` : ``}`}
+                    onClick={() => setCoreA(item)}
                   >
                     <img
                       draggable={false}
@@ -311,10 +315,8 @@ export default function Submit() {
               <div className="flex flex-col gap-1">
                 {bSpecial.map((item) => (
                   <div
-                    className={`cursor-pointer border border-white/10 min-w-18 sm:min-w-25 rounded flex items-center gap-1 ${coreS === (item) ? `bg-white text-black` : ``}`}
-                    onClick={() =>
-                      setCoreS(item)
-                    }
+                    className={`cursor-pointer border border-white/10 min-w-18 sm:min-w-25 rounded flex items-center gap-1 ${coreS === item ? `bg-white text-black` : ``}`}
+                    onClick={() => setCoreS(item)}
                   >
                     <img
                       draggable={false}
@@ -329,10 +331,8 @@ export default function Submit() {
               <div className="flex flex-col gap-1">
                 {bCast.map((item) => (
                   <div
-                    className={`cursor-pointer border border-white/10 min-w-18 sm:min-w-25 rounded flex items-center gap-1 ${coreC === (item) ? `bg-white text-black` : ``}`}
-                    onClick={() =>
-                      setCoreC(item)
-                    }
+                    className={`cursor-pointer border border-white/10 min-w-18 sm:min-w-25 rounded flex items-center gap-1 ${coreC === item ? `bg-white text-black` : ``}`}
+                    onClick={() => setCoreC(item)}
                   >
                     <img
                       draggable={false}
@@ -347,10 +347,8 @@ export default function Submit() {
               <div className="flex flex-col gap-1">
                 {bSprint.map((item) => (
                   <div
-                    className={`cursor-pointer border border-white/10 min-w-18 sm:min-w-25 rounded flex items-center gap-1 ${coreSp === (item) ? `bg-white text-black` : ``}`}
-                    onClick={() =>
-                      setCoreSp(item)
-                    }
+                    className={`cursor-pointer border border-white/10 min-w-18 sm:min-w-25 rounded flex items-center gap-1 ${coreSp === item ? `bg-white text-black` : ``}`}
+                    onClick={() => setCoreSp(item)}
                   >
                     <img
                       draggable={false}
@@ -365,10 +363,8 @@ export default function Submit() {
               <div className="flex flex-col gap-1">
                 {bMagick.map((item) => (
                   <div
-                    className={`cursor-pointer border border-white/10 min-w-18 sm:min-w-25 rounded flex items-center gap-1 ${coreM === (item) ? `bg-white text-black` : ``}`}
-                    onClick={() =>
-                      setCoreM(item)
-                    }
+                    className={`cursor-pointer border border-white/10 min-w-18 sm:min-w-25 rounded flex items-center gap-1 ${coreM === item ? `bg-white text-black` : ``}`}
+                    onClick={() => setCoreM(item)}
                   >
                     <img
                       draggable={false}
@@ -393,8 +389,9 @@ export default function Submit() {
                 return (
                   <div
                     key={item}
-                    className={`border px-2 py-1 rounded cursor-pointer flex gap-0.5 ${selected ? "bg-white text-black" : "border-white/10"
-                      }`}
+                    className={`border px-2 py-1 rounded cursor-pointer flex gap-0.5 ${
+                      selected ? "bg-white text-black" : "border-white/10"
+                    }`}
                     onClick={() =>
                       setHammers((prev) => {
                         if (prev.includes(item)) {
@@ -430,8 +427,9 @@ export default function Submit() {
                 return (
                   <div
                     key={item}
-                    className={`border px-2 py-1 rounded cursor-pointer flex gap-0.5 ${selected ? "bg-white text-black" : "border-white/10"
-                      }`}
+                    className={`border px-2 py-1 rounded cursor-pointer flex gap-0.5 ${
+                      selected ? "bg-white text-black" : "border-white/10"
+                    }`}
                     onClick={() =>
                       setKeepsakes((prev) => {
                         if (prev.length >= 4) {
@@ -446,6 +444,18 @@ export default function Submit() {
                   </div>
                 );
               })}
+            </div>
+            <div className="relative w-full max-w-125">
+              <textarea
+                className="textarea bg-[#0e0c12] w-full max-w-125 focus:outline-0 rounded"
+                placeholder="Bio"
+                maxLength={bioMaxLength}
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+              ></textarea>
+              <span className="absolute bottom-2 right-3 text-sm text-white/50">
+                {bio.length}/{bioMaxLength}
+              </span>
             </div>
           </div>
           <div className="flex justify-center my-4">
