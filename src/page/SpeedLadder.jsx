@@ -23,7 +23,13 @@ export default function SpeedLadder() {
     return allAspectsInOrder.map((aspect) => {
       const sorted = allRuns
         .filter((obj) => obj.asp === aspect && obj.loc === location) // only Underworld or Surface, anything else is dropped
-        .filter((obj) => (patch === "All Patches" ? obj : releasePatch.includes(obj.patch)))
+        .filter((obj) =>
+          patch === "All Patches"
+            ? obj
+            : patch === "v1"
+              ? releasePatch.includes(obj.patch)
+              : !releasePatch.includes(obj.patch),
+        )
         .filter((obj) => parseTimetoMs(obj.tim) < parseTimetoMs(`${maxTime}:00.00`))
         .sort((a, b) => parseTimetoMs(a.tim) - parseTimetoMs(b.tim)); // fastest first, higher fear breaks ties
 
@@ -82,6 +88,9 @@ export default function SpeedLadder() {
               </option>
               <option key="v1" value={"v1"}>
                 v1.0+
+              </option>
+              <option key="ea" value={"ea"}>
+                Early Access
               </option>
             </select>
           </div>
