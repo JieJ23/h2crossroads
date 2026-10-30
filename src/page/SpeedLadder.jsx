@@ -8,9 +8,12 @@ const MS_PER_MIN = 60000;
 const TIME_OPTIONS = [4, 5, 6, 7, 8, 9, 10]; // max time, in minutes
 const LOCATIONS = ["Underworld", "Surface"];
 
+const releasePatch = ["v1.0", "v1.13x"];
+
 export default function SpeedLadder() {
   const [location, setLocation] = useState(`Underworld`);
   const [maxTime, setMaxTime] = useState(10);
+  const [patch, setPatch] = useState("All Patches");
 
   const allRuns = useMemo(() => [...fixedSrc], []);
 
@@ -20,6 +23,7 @@ export default function SpeedLadder() {
     return allAspectsInOrder.map((aspect) => {
       const sorted = allRuns
         .filter((obj) => obj.asp === aspect && obj.loc === location) // only Underworld or Surface, anything else is dropped
+        .filter((obj) => (patch === "All Patches" ? obj : releasePatch.includes(obj.patch)))
         .filter((obj) => parseTimetoMs(obj.tim) < parseTimetoMs(`${maxTime}:00.00`))
         .sort((a, b) => parseTimetoMs(a.tim) - parseTimetoMs(b.tim)); // fastest first, higher fear breaks ties
 
@@ -35,7 +39,7 @@ export default function SpeedLadder() {
 
       return top;
     });
-  }, [allRuns, location, maxTime]);
+  }, [allRuns, location, maxTime, patch]);
 
   return (
     <div>
@@ -66,6 +70,19 @@ export default function SpeedLadder() {
                   Max {m}:00
                 </option>
               ))}
+            </select>
+            <select
+              className="select bg-[#1e123c] border-none rounded outline-none w-32"
+              value={patch}
+              aria-label="Max time"
+              onChange={(e) => setPatch(e.target.value)}
+            >
+              <option key="All" value={"All Patches"}>
+                All Patches
+              </option>
+              <option key="v1" value={"v1"}>
+                v1.0+
+              </option>
             </select>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1 md:gap-2">
