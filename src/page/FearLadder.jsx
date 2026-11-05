@@ -10,6 +10,10 @@ import { hammerID } from "../util/hammerId";
 const FEAR_OPTIONS = [55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67];
 const LOCATIONS = ["Underworld", "Surface"];
 const CATEGORY = ["Core", "Hammers", "Keepsakes"];
+const MAX_KEEPSAKES = 4;
+
+// Trim, drop empties, keep repeats, and optionally cap the list length
+const getIcons = (str, max) => sToA(str).map((s) => s?.trim()).filter(Boolean).slice(0, max);
 
 export default function FearLadder() {
   const { posts, loader } = useData();
@@ -19,6 +23,7 @@ export default function FearLadder() {
 
   const allRuns = useMemo(
     () => [...highFearData, ...(posts || [])].filter((obj) => obj.type && obj.type === "Unseeded"),
+    [posts],
   );
 
   const fullData = useMemo(() => {
@@ -103,7 +108,10 @@ export default function FearLadder() {
                 >
                   <div className="text-center font-[Mar] text-[16px] text-white mb-2">{allAspectsInOrder[oi]}</div>
                   {arr.slice(0, 10).map((obj, index) => (
-                    <div className="grid grid-cols-3 relative text-gray-300 items-center" key={index}>
+                    <div
+                      className="grid grid-cols-3 relative text-gray-300 items-center"
+                      key={`${allAspectsInOrder[oi]}-${location}-${obj.nam}-${obj.tim}-${obj.fea}`}
+                    >
                       <div
                         className={`text-start truncate ${obj.fea == 67 ? `text-[yellow]` : obj.fea >= 65 ? `text-[#00ffaa]` : `text-gray-300`}`}
                       >
@@ -126,8 +134,8 @@ export default function FearLadder() {
                           ))}
                         {category === "Hammers" &&
                           obj.ham &&
-                          sToA(obj.ham).map((ite, index) => (
-                            <div key={ite} className="tooltip z-20">
+                          getIcons(obj.ham).map((ite, index) => (
+                            <div key={`${ite}-${index}`} className="tooltip z-20">
                               <div className="tooltip-content p-0 rounded">
                                 <div className=" bg-white text-black p-1 px-2 rounded font-semibold text-[14px]">
                                   {ite}
@@ -136,16 +144,15 @@ export default function FearLadder() {
                               <img
                                 draggable={false}
                                 src={`/Hammers/${hammerID[ite]}.png`}
-                                alt="Hammers"
+                                alt={ite}
                                 className="size-7 sm:size-6"
-                                key={index}
                               />
                             </div>
                           ))}
                         {category === "Keepsakes" &&
                           obj.ks &&
-                          sToA(obj.ks).map((ite, index) => (
-                            <div key={ite} className="tooltip z-20">
+                          getIcons(obj.ks, MAX_KEEPSAKES).map((ite, index) => (
+                            <div key={`${ite}-${index}`} className="tooltip z-20">
                               <div className="tooltip-content p-0 rounded">
                                 <div className=" bg-white text-black p-1 px-2 rounded font-semibold text-[14px]">
                                   {ite}
@@ -154,9 +161,8 @@ export default function FearLadder() {
                               <img
                                 draggable={false}
                                 src={`/Keepsakes/${ite}.png`}
-                                alt="Keepsakes"
+                                alt={ite}
                                 className="size-7 sm:size-6"
-                                key={index}
                               />
                             </div>
                           ))}
