@@ -9,6 +9,7 @@ import { allAspectsInOrder, parseTimetoMs } from "../util/misc";
 import { useReducer, useMemo, useState, useEffect, useCallback } from "react";
 import FilterDrawer from "../block/filterDrawer";
 import { useData } from "../hooks/DataFetch";
+import { useSrc } from "../hooks/SrcFetch";
 import Loading from "../block/loading";
 
 // Util Func
@@ -229,11 +230,12 @@ const ITEMS_PER_PAGE = 20;
 
 export default function Run() {
   const { posts, loader } = useData();
+  const { speedRunSrc, loader2 } = useSrc();
   const [state, dispatch] = useReducer(runsReducer, initialState);
   const { aspect, player, category, sort, minFear, maxFear, minTime, maxTime, unseeded, videoOnly, unique, page } =
     state;
 
-  const allRuns = useMemo(() => [...mergedOrderData, ...(posts || [])], [posts]);
+  const allRuns = useMemo(() => [...mergedOrderData, ...(posts || []), ...(speedRunSrc || [])], [posts, speedRunSrc]);
 
   // Filter -> Sort (derived data, so it's computed, not stored in state)
   const filterData = useMemo(() => {
@@ -537,7 +539,7 @@ export default function Run() {
   return (
     <PageBlock>
       <div className="my-4 select-none">
-        {loader ? (
+        {loader && loader2 ? (
           <Loading />
         ) : (
           <>

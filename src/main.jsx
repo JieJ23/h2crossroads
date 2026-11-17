@@ -20,36 +20,39 @@ import Submit from "./page/Submit.jsx";
 // Hooks
 import { DataProvider } from "./hooks/DataFetch.jsx";
 import { PfpProvider } from "./hooks/PfpFetch.jsx";
+import { SrcProvider } from "./hooks/SrcFetch.jsx";
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <PfpProvider>
-      <DataProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<App />} />
-            <Route path="/Run" element={<Run />} />
-            <Route path="/FearLadder" element={<FearLadder />} />
-            <Route path="/FearRecord" element={<FearRecord />} />
+      <SrcProvider>
+        <DataProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={<App />} />
+              <Route path="/Run" element={<Run />} />
+              <Route path="/FearLadder" element={<FearLadder />} />
+              <Route path="/FearRecord" element={<FearRecord />} />
 
-            <Route path="/SpeedLadder" element={<SpeedLadder />} />
-            <Route path="/SpeedRecord" element={<SpeedRecord />} />
+              <Route path="/SpeedLadder" element={<SpeedLadder />} />
+              <Route path="/SpeedRecord" element={<SpeedRecord />} />
 
-            <Route path="/Stats" element={<Stats />} />
-            <Route path="/FirstMaxFear" element={<FirstMaxFear />} />
-            <Route path="/Player" element={<Player />} />
+              <Route path="/Stats" element={<Stats />} />
+              <Route path="/FirstMaxFear" element={<FirstMaxFear />} />
+              <Route path="/Player" element={<Player />} />
 
-            <Route path="/ArcanaVow" element={<ArcanaVow />} />
-            <Route path="/BiomeMap" element={<BiomeMap />} />
+              <Route path="/ArcanaVow" element={<ArcanaVow />} />
+              <Route path="/BiomeMap" element={<BiomeMap />} />
 
-            <Route path="/Submit" element={<Submit />} />
+              <Route path="/Submit" element={<Submit />} />
 
-            <Route path="/*" element={<App />} />
-          </Routes>
-        </Router>
-      </DataProvider>
+              <Route path="/*" element={<App />} />
+            </Routes>
+          </Router>
+        </DataProvider>
+      </SrcProvider>
     </PfpProvider>
   </StrictMode>,
 );
