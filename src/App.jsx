@@ -453,7 +453,7 @@ function App() {
 
   return (
     <div className="relative h-screen overflow-hidden text-center font-[Dos] text-[15px]" ref={containerRef}>
-      <div className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-lvh bg-cover bg-center bg-[url('/mainBg.jpg')] brightness-25 hue-rotate-20" />
+      <div className="pointer-events-none fixed inset-x-0 top-0 -z-10 h-lvh bg-cover bg-top bg-[url('/mainBg.webp')] brightness-25 hue-rotate-20" />
       {/* Dismissible hint: hard refresh to clear the cache */}
       {showCacheAlert && (
         <div
@@ -496,7 +496,7 @@ function App() {
       {/* Carousel: cards are positioned and animated by GSAP */}
       <ul
         ref={cardsRef}
-        className="absolute left-1/2 top-1/2 z-20 h-64 w-44 md:h-80 md:w-54 -translate-x-1/2 -translate-y-1/2 select-none bg-[#0e0c12]"
+        className="absolute left-1/2 top-1/2 z-20 h-64 w-44 md:h-80 md:w-54 -translate-x-1/2 -translate-y-1/2 select-none bg-[#0e0c12]/50"
         style={{
           borderStyle: "solid",
           borderWidth: "15px",

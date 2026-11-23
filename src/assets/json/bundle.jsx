@@ -5,7 +5,7 @@ import src2 from "./srcData2.json";
 
 import { parseTimetoMs } from "../../util/misc";
 
-const fixName = {
+export const fixName = {
   hookiedookie: "HookieDookie",
   Foolish_: "Foolish",
   getcheckmated: "Checkmate",

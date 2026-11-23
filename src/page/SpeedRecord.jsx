@@ -1,6 +1,9 @@
 import { usePfp } from "../hooks/PfpFetch";
+import { useSrc } from "../hooks/SrcFetch";
 import Loading from "../block/loading";
 import { fixedSrc } from "../assets/json/bundle";
+
+import { fixName } from "../assets/json/bundle";
 
 import PageBlock from "../block/pageBlock";
 import { memo, useMemo, useState } from "react";
@@ -141,17 +144,25 @@ const AvatarItem = memo(function AvatarItem({ name, ind, region, profileImg }) {
 });
 export default function SpeedRecord() {
   const { pfp, pfploader } = usePfp();
+  const { speedRunSrc, loader2 } = useSrc();
   const [category, setCategory] = useState(0);
+  const [subCate, setSubCate] = useState(0);
+
+  const updateSrcNames = speedRunSrc.map((obj) => ({
+    ...obj,
+    nam: fixName[obj.nam] ?? obj.nam,
+  }));
 
   // Single pass over all entries; only recomputed when `posts` changes,
   // not when `category` changes.
   const displayCategory = useMemo(
     () =>
-      buildDisplayCategory([...fixedSrc].filter((obj) => (obj.patch && obj.patch == "v1.0") || obj.patch == "v1.13x")),
+      buildDisplayCategory(
+        [...fixedSrc, ...updateSrcNames].filter((obj) => (obj.patch && obj.patch == "v1.0") || obj.patch == "v1.13x"),
+      ),
     [],
   );
 
-  const displayCurrentCategory = displayCategory[category];
   const region = CATEGORY_REGION[category];
 
   const PfpObjects = useMemo(
@@ -160,12 +171,14 @@ export default function SpeedRecord() {
     [pfp],
   );
 
+  const displaySection = displayCategory[category][subCate];
+
   return (
     <div className="h-full min-h-lvh relative text-[12px] md:text-[14px] select-none overflow-x-hidden">
       <div>
         <PageBlock>
           {/*  */}
-          {pfploader ? (
+          {pfploader && loader2 ? (
             <Loading />
           ) : (
             <div>
@@ -176,31 +189,37 @@ export default function SpeedRecord() {
                     src={`/Biome/${r}.png`}
                     className={`border border-white/10 size-12 p-1 rounded-xl cursor-pointer ${category === index ? `bg-[#00ffaa]` : `bg-black`}`}
                     alt={r}
-                    onClick={() => setCategory(index)}
+                    onClick={() => {
+                      setSubCate(0);
+                      setCategory(index);
+                    }}
                   />
                 ))}
               </div>
+              <div className="flex flex-wrap gap-2 justify-center my-10">
+                {(category === 0 ? SUB_CATEGORY.slice(0, 2) : SUB_CATEGORY).map((item, index) => (
+                  <div
+                    className={`rounded p-1 px-2 min-w-15 text-center cursor-pointer border border-white/10 ${subCate === index ? `bg-[#00ffaa] text-black` : `bg-[#0e0c12]`}`}
+                    onClick={() => setSubCate(index)}
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
               {/* ------------------------------- */}
-              {(category === 0 ? displayCurrentCategory.slice(0, 2) : displayCurrentCategory).map((arr, ind) => (
-                <div className="mb-16 rounded px-2" key={SUB_CATEGORY[ind]}>
-                  <div className="px-4 md:text-start text-center">
-                    <div className={`font-[Mar] text-[20px] md:text-[24px] leading-none ${addTextColor(region)}`}>
-                      Sub {SUB_CATEGORY[ind]}
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap justify-center md:justify-start gap-1 p-1">
-                    {arr.map((obj, index) => (
-                      <AvatarItem
-                        key={obj.nam}
-                        name={obj.nam}
-                        ind={ind}
-                        region={region}
-                        profileImg={PfpObjects[obj.nam]}
-                      />
-                    ))}
-                  </div>
+              <div className="mb-16 rounded px-2">
+                <div className="flex flex-wrap justify-center gap-2 p-1">
+                  {displaySection.map((obj) => (
+                    <AvatarItem
+                      key={obj.nam}
+                      name={obj.nam}
+                      ind={subCate}
+                      region={region}
+                      profileImg={PfpObjects[obj.nam]}
+                    />
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
           )}
         </PageBlock>

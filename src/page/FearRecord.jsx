@@ -113,7 +113,7 @@ function buildDisplayCategory(entries) {
 /*  Components                                                                */
 /* -------------------------------------------------------------------------- */
 
-const AvatarItem = memo(function AvatarItem({ name, ind, region, profileImg, func }) {
+const AvatarItem = memo(function AvatarItem({ name, ind, region, profileImg }) {
   const bgClasses = addCategoryClasses(region);
   return (
     <div
@@ -179,12 +179,12 @@ export default function FearRecord() {
   const { posts, loader } = useData();
   const { pfp, pfploader } = usePfp();
   const [category, setCategory] = useState(0);
+  const [subCate, setSubCate] = useState(0);
 
   // Single pass over all entries; only recomputed when `posts` changes,
   // not when `category` changes.
   const displayCategory = useMemo(() => buildDisplayCategory([...earlyAccessData, ...highFearData, ...posts]), [posts]);
 
-  const displayCurrentCategory = displayCategory[category];
   const region = CATEGORY_REGION[category];
 
   const PfpObjects = useMemo(
@@ -193,22 +193,7 @@ export default function FearRecord() {
     [pfp],
   );
 
-  // Players
-
-  const maxFearRuns = [...earlyAccessData, ...highFearData, , ...posts].filter(
-    (objs) => objs.type && objs.type === "Unseeded" && objs.fea == 67,
-  );
-
-  const firstMaxAspect = {};
-  const earliestDate = {};
-
-  for (const run of maxFearRuns) {
-    const time = new Date(run.dat).getTime();
-    if (!(run.nam in earliestDate) || time < earliestDate[run.nam]) {
-      earliestDate[run.nam] = time;
-      firstMaxAspect[run.nam] = run.asp;
-    }
-  }
+  const displaySection = displayCategory[category][subCate];
 
   return (
     <div className="h-full min-h-lvh relative text-[12px] md:text-[14px] select-none overflow-x-hidden">
@@ -230,29 +215,31 @@ export default function FearRecord() {
                   />
                 ))}
               </div>
+              <div className="flex flex-wrap gap-2 justify-center my-10">
+                {SUB_CATEGORY.map((item, index) => (
+                  <div
+                    className={`rounded p-1 px-2 min-w-15 text-center cursor-pointer border border-white/10 ${subCate === index ? `bg-[#00ffaa] text-black` : `bg-[#0e0c12]`}`}
+                    onClick={() => setSubCate(index)}
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
+
               {/* ------------------------------- */}
-              {displayCurrentCategory.map((arr, ind) => (
-                <div className="mb-16 rounded px-2" key={SUB_CATEGORY[ind]}>
-                  <div className="px-4 md:text-start text-center">
-                    <div className={`font-[Mar] text-[20px] md:text-[24px] leading-none ${addTextColor(region)}`}>
-                      {SUB_CATEGORY[ind]}
-                    </div>
-                    {ind === 0 && <div className=" text-gray-300">Unseeded and Unmodded</div>}
-                  </div>
-                  <div className="flex flex-wrap justify-center md:justify-start gap-1 p-1">
-                    {arr.map((obj) => (
-                      <AvatarItem
-                        key={obj.nam}
-                        name={obj.nam}
-                        ind={ind}
-                        region={region}
-                        profileImg={PfpObjects[obj.nam]}
-                        func={firstMaxAspect}
-                      />
-                    ))}
-                  </div>
+              <div className="mb-16 rounded px-2">
+                <div className="flex flex-wrap justify-center gap-2 p-1">
+                  {displaySection.map((obj) => (
+                    <AvatarItem
+                      key={obj.nam}
+                      name={obj.nam}
+                      ind={subCate}
+                      region={region}
+                      profileImg={PfpObjects[obj.nam]}
+                    />
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
           )}
         </PageBlock>

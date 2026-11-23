@@ -3,6 +3,9 @@ import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { fixedSrc } from "../assets/json/bundle.jsx";
 import { allAspectsInOrder, parseTimetoMs, parsemstoTime } from "../util/misc";
+import { useSrc } from "../hooks/SrcFetch.jsx";
+import { fixName } from "../assets/json/bundle.jsx";
+import Loading from "../block/loading.jsx";
 
 const MS_PER_MIN = 60000;
 const TIME_OPTIONS = [4, 5, 6, 7, 8, 9, 10]; // max time, in minutes
@@ -11,11 +14,17 @@ const LOCATIONS = ["Underworld", "Surface"];
 const releasePatch = ["v1.0", "v1.13x"];
 
 export default function SpeedLadder() {
+  const { speedRunSrc, loader2 } = useSrc();
   const [location, setLocation] = useState(`Underworld`);
   const [maxTime, setMaxTime] = useState(10);
   const [patch, setPatch] = useState("All Patches");
 
-  const allRuns = useMemo(() => [...fixedSrc], []);
+  const updateSrcNames = speedRunSrc.map((obj) => ({
+    ...obj,
+    nam: fixName[obj.nam] ?? obj.nam,
+  }));
+
+  const allRuns = useMemo(() => [...fixedSrc, ...updateSrcNames], []);
 
   const fullData = useMemo(() => {
     const TOP_N = 10;
@@ -94,35 +103,39 @@ export default function SpeedLadder() {
               </option>
             </select>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1 md:gap-2">
-            {fullData.map((arr, oi) => (
-              <div
-                key={allAspectsInOrder[oi]}
-                className={`rounded-sm px-2 py-1 relative bg-linear-to-b from-[#0e0c12] to-transparent border border-white/10`}
-              >
-                <div className="text-center font-[Mar] text-[16px] text-white mb-2">{allAspectsInOrder[oi]}</div>
-                {arr.slice(0, 10).map((obj, index) => (
-                  <div className="grid grid-cols-3 relative text-gray-300 items-center" key={index}>
-                    <div
-                      className={`text-start truncate ${obj.fea == 67 ? `text-[yellow]` : obj.fea >= 65 ? `text-[#00ffaa]` : `text-gray-300`}`}
-                    >
-                      <Link to={obj.src} target="_blank">
-                        {`${obj.nam}`}
-                      </Link>
-                    </div>
-                    {arr[index + 1] ? (
-                      <div className="text-end text-green-300">
-                        +{parsemstoTime(parseTimetoMs(arr[index + 1].tim) - parseTimetoMs(arr[index].tim))}
+          {loader2 ? (
+            <Loading />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1 md:gap-2">
+              {fullData.map((arr, oi) => (
+                <div
+                  key={allAspectsInOrder[oi]}
+                  className={`rounded-sm px-2 py-1 relative bg-linear-to-b from-[#0e0c12] to-transparent border border-white/10`}
+                >
+                  <div className="text-center font-[Mar] text-[16px] text-white mb-2">{allAspectsInOrder[oi]}</div>
+                  {arr.slice(0, 10).map((obj, index) => (
+                    <div className="grid grid-cols-3 relative text-gray-300 items-center" key={index}>
+                      <div
+                        className={`text-start truncate ${obj.fea == 67 ? `text-[yellow]` : obj.fea >= 65 ? `text-[#00ffaa]` : `text-gray-300`}`}
+                      >
+                        <Link to={obj.src} target="_blank">
+                          {`${obj.nam}`}
+                        </Link>
                       </div>
-                    ) : (
-                      <div></div>
-                    )}
-                    <div className="text-end">{obj.tim}</div>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
+                      {arr[index + 1] ? (
+                        <div className="text-end text-green-300">
+                          +{parsemstoTime(parseTimetoMs(arr[index + 1].tim) - parseTimetoMs(arr[index].tim))}
+                        </div>
+                      ) : (
+                        <div></div>
+                      )}
+                      <div className="text-end">{obj.tim}</div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </PageBlock>
     </div>
