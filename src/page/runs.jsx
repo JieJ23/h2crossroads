@@ -247,7 +247,7 @@ export default function Run() {
     const seen = new Set();
     const result = [];
     for (const obj of [...mergedOrderData, ...(posts || []), ...updatesSrcNames]) {
-      const id = `${obj.nam}|${obj.dat}|${obj.tim}|${obj.asp}|${obj.fea}|${obj.src}`;
+      const id = `${obj.nam}|${obj.dat}|${obj.tim}|${obj.asp}|${obj.fea}|${obj.src}|${obj.loc}`;
       if (seen.has(id)) continue;
       seen.add(id);
       result.push({ ...obj, _id: id });
