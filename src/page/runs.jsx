@@ -236,11 +236,24 @@ export default function Run() {
   const { aspect, player, category, sort, minFear, maxFear, minTime, maxTime, unseeded, videoOnly, unique, page } =
     state;
 
-  const updatesSrcNames = speedRunSrc.map((obj) => ({
-    ...obj,
-    nam: fixName[obj.nam] ?? obj.nam,
-  }));
-  const allRuns = useMemo(() => [...mergedOrderData, ...(posts || []), ...updatesSrcNames], [posts, speedRunSrc]);
+  // Merge all sources, then dedupe. The same run can exist in the bundle, the fetched
+  // posts and the speedrun source, which made entries show up twice across pages.
+  // Each run also gets a stable unique _id used as the React key.
+  const allRuns = useMemo(() => {
+    const updatesSrcNames = (speedRunSrc || []).map((obj) => ({
+      ...obj,
+      nam: fixName[obj.nam] ?? obj.nam,
+    }));
+    const seen = new Set();
+    const result = [];
+    for (const obj of [...mergedOrderData, ...(posts || []), ...updatesSrcNames]) {
+      const id = `${obj.nam}|${obj.dat}|${obj.tim}|${obj.asp}|${obj.fea}|${obj.src}`;
+      if (seen.has(id)) continue;
+      seen.add(id);
+      result.push({ ...obj, _id: id });
+    }
+    return result;
+  }, [posts, speedRunSrc]);
 
   // Filter -> Sort (derived data, so it's computed, not stored in state)
   const filterData = useMemo(() => {
@@ -612,8 +625,8 @@ export default function Run() {
             {/* Entry Display */}
             {view === "grid" ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5  gap-4 select-none">
-                {paginatedData.map((obj, index) => (
-                  <div className="rounded-lg scale-90 sm:scale-100" key={index}>
+                {paginatedData.map((obj) => (
+                  <div className="rounded-lg scale-90 sm:scale-100" key={obj._id}>
                     <Link
                       to={obj.src || "#"}
                       target="_blank"
@@ -837,11 +850,11 @@ export default function Run() {
                     </tr>
                   </thead>
                   <tbody className="text-[16px]">
-                    {paginatedData.map((obj, index) => {
+                    {paginatedData.map((obj) => {
                       const biome = findLoc(obj.loc);
                       const isVideo = videoLinks.some((link) => obj.src.includes(link));
                       return (
-                        <tr key={`${obj.nam}-${obj.dat}-${obj.tim}`} className="hover:bg-white/5 border-white/10">
+                        <tr key={obj._id} className="hover:bg-white/5 border-white/10">
                           <td>{obj.fea !== 0 && obj.fea}</td>
                           <td>
                             <span
