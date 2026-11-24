@@ -11,6 +11,7 @@ import FilterDrawer from "../block/filterDrawer";
 import { useData } from "../hooks/DataFetch";
 import { useSrc } from "../hooks/SrcFetch";
 import Loading from "../block/loading";
+import { fixName } from "../assets/json/bundle";
 
 // Util Func
 const videoLinks = ["yout", "bilib", "twitch"];
@@ -235,7 +236,11 @@ export default function Run() {
   const { aspect, player, category, sort, minFear, maxFear, minTime, maxTime, unseeded, videoOnly, unique, page } =
     state;
 
-  const allRuns = useMemo(() => [...mergedOrderData, ...(posts || []), ...(speedRunSrc || [])], [posts, speedRunSrc]);
+  const updatesSrcNames = speedRunSrc.map((obj) => ({
+    ...obj,
+    nam: fixName[obj.nam] ?? obj.nam,
+  }));
+  const allRuns = useMemo(() => [...mergedOrderData, ...(posts || []), ...updatesSrcNames], [posts, speedRunSrc]);
 
   // Filter -> Sort (derived data, so it's computed, not stored in state)
   const filterData = useMemo(() => {
